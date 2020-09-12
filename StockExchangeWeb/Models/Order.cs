@@ -8,6 +8,8 @@ namespace StockExchangeWeb.Models
 
         public OrderStatus OrderStatus { get; set; } = OrderStatus.IN_MARKET;
         
+        public bool BuyOrder { get; set; }
+        
         public string Ticker { get; set; }
         
         public uint Amount { get; set; }
