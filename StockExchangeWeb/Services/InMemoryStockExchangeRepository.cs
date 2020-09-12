@@ -15,12 +15,9 @@ namespace StockExchangeWeb.Services
             // Add price to order book
             if (!_orderBook.ContainsKey(order.AskPrice))
                 _orderBook.Add(order.AskPrice, new OrderBook());
-            // Add shares to order book
-            if (!_orderBook[order.AskPrice].SharesPerOrder.ContainsKey(order.Amount))
-                _orderBook[order.AskPrice].SharesPerOrder.Add(order.Amount, new Queue<Order>());
-            
+
             // Place order
-            _orderBook[order.AskPrice].SharesPerOrder[order.Amount].Enqueue(order);
+            bool executed = _orderBook[order.AskPrice].PlaceAndTryExecute(order);
             
             // TODO execute order immediately if a corresponding order exists
             // TODO add order to history of orders
