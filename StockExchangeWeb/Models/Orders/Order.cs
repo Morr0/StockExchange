@@ -1,10 +1,12 @@
 ﻿using System;
 
-namespace StockExchangeWeb.Models
+namespace StockExchangeWeb.Models.Orders
 {
     public class Order
     {
         public string Id { get; set; } = Guid.NewGuid().ToString();
+
+        public OrderType OrderType { get; set; } = OrderType.LIMIT_ORDER;
 
         public OrderStatus OrderStatus { get; set; } = OrderStatus.IN_MARKET;
         

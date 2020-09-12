@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using StockExchangeWeb.Models;
+using StockExchangeWeb.Models.Orders;
 
 namespace StockExchangeWeb.Services
 {
@@ -17,7 +18,16 @@ namespace StockExchangeWeb.Services
                 _orderBook.Add(order.AskPrice, new OrderBook());
 
             // Place order
-            bool executed = _orderBook[order.AskPrice].PlaceAndTryExecute(order);
+            bool executed = false;
+            if (order.OrderType == OrderType.LIMIT_ORDER)
+            {
+                executed = _orderBook[order.AskPrice].PlaceAndTryExecute(order);
+            } else if (order.OrderType == OrderType.LIMIT_ORDER_IMMEDIATE)
+            {
+                executed = _orderBook[order.AskPrice].TryExecute(order);
+            } 
+            // TODO add market order
+            // TODO add stop order and it's types
             
             // TODO execute order immediately if a corresponding order exists
             // TODO add order to history of orders

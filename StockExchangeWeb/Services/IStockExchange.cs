@@ -1,4 +1,5 @@
 ﻿using StockExchangeWeb.Models;
+using StockExchangeWeb.Models.Orders;
 
 namespace StockExchangeWeb.Services
 {
