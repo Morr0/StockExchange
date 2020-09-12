@@ -32,5 +32,11 @@ namespace StockExchangeWeb.Controllers
 
             return Ok(order);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetOrders([FromRoute] string ticker)
+        {
+            return Ok(_stockExchange.GetOrdersPlaced(ticker));
+        }
     }
 }

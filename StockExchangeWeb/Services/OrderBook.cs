@@ -15,6 +15,28 @@ namespace StockExchangeWeb.Services
         /// </summary>
         private Dictionary<uint, Queue<Order>> _buySharesPerOrder = new Dictionary<uint, Queue<Order>>();
         private Dictionary<uint, Queue<Order>> _sellSharesPerOrder = new Dictionary<uint, Queue<Order>>();
+        
+        public uint SharesToSell { get; private set; }
+        public uint SharesToBuy { get; private set; }
+
+        private Dictionary<uint, Queue<Order>> CorresspondingShares(ref Order order)
+        {
+            // Init if is not
+            if (!_sellSharesPerOrder.ContainsKey(order.Amount))
+                _sellSharesPerOrder.Add(order.Amount, new Queue<Order>());
+            if (!_buySharesPerOrder.ContainsKey(order.Amount))
+                _buySharesPerOrder.Add(order.Amount, new Queue<Order>());
+
+            return order.BuyOrder ? _sellSharesPerOrder : _buySharesPerOrder;
+        }
+
+        private void CorrespondingSharesTotal(ref Order order, bool add)
+        {
+            if (order.BuyOrder)
+                SharesToSell += (uint)(add ? order.Amount : -order.Amount);
+            else
+                SharesToBuy += (uint) (add ? order.Amount : -order.Amount);
+        }
 
         /// <summary>
         /// Places an order and tries to execute.
@@ -34,7 +56,11 @@ namespace StockExchangeWeb.Services
                 if (!_sellSharesPerOrder.ContainsKey(order.Amount))
                     _sellSharesPerOrder.Add(order.Amount, new Queue<Order>());
                 
+                Console.WriteLine($"Pricce: {order.Amount}");
                 _sellSharesPerOrder[order.Amount].Enqueue(order);
+            
+                SharesToBuy += order.Amount;
+                Console.WriteLine($"SHArres: {SharesToBuy}");
             }
             else
             {
@@ -42,6 +68,8 @@ namespace StockExchangeWeb.Services
                     _buySharesPerOrder.Add(order.Amount, new Queue<Order>());
                 
                 _buySharesPerOrder[order.Amount].Enqueue(order);
+            
+                SharesToSell += order.Amount;
             }
         }
 
@@ -56,7 +84,9 @@ namespace StockExchangeWeb.Services
             {
                 if (_sellSharesPerOrder.ContainsKey(order.Amount))
                 {
-                    _sellSharesPerOrder[order.Amount].Dequeue();
+                    Order oppositeOrder = _sellSharesPerOrder[order.Amount].Dequeue();
+                    
+                    //SharesToBuy -= oppositeOrder.Amount;
                     
                     order.OrderStatus = OrderStatus.EXECUTED;
                     order.OrderExecutionTime = DateTime.UtcNow.ToString();
@@ -68,7 +98,9 @@ namespace StockExchangeWeb.Services
             {
                 if (_buySharesPerOrder.ContainsKey(order.Amount))
                 {
-                    _buySharesPerOrder[order.Amount].Dequeue();
+                    Order oppositeOrder = _buySharesPerOrder[order.Amount].Dequeue();
+                    
+                    //SharesToSell -= oppositeOrder.Amount;
                     
                     order.OrderStatus = OrderStatus.EXECUTED;
                     order.OrderExecutionTime = DateTime.UtcNow.ToString();
