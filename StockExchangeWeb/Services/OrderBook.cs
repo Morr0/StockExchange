@@ -53,21 +53,21 @@ namespace StockExchangeWeb.Services
         {
             if (order.BuyOrder)
             {
-                if (!_sellSharesPerOrder.ContainsKey(order.Amount))
-                    _sellSharesPerOrder.Add(order.Amount, new Queue<Order>());
+                if (!_buySharesPerOrder.ContainsKey(order.Amount))
+                    _buySharesPerOrder.Add(order.Amount, new Queue<Order>());
                 
                 Console.WriteLine($"Pricce: {order.Amount}");
-                _sellSharesPerOrder[order.Amount].Enqueue(order);
+                _buySharesPerOrder[order.Amount].Enqueue(order);
             
                 SharesToBuy += order.Amount;
                 Console.WriteLine($"SHArres: {SharesToBuy}");
             }
             else
             {
-                if (!_buySharesPerOrder.ContainsKey(order.Amount))
-                    _buySharesPerOrder.Add(order.Amount, new Queue<Order>());
+                if (!_sellSharesPerOrder.ContainsKey(order.Amount))
+                    _sellSharesPerOrder.Add(order.Amount, new Queue<Order>());
                 
-                _buySharesPerOrder[order.Amount].Enqueue(order);
+                _sellSharesPerOrder[order.Amount].Enqueue(order);
             
                 SharesToSell += order.Amount;
             }
@@ -80,36 +80,38 @@ namespace StockExchangeWeb.Services
         /// <returns>True -> Executed</returns>
         public bool TryExecute(Order order)
         {
-            if (order.BuyOrder)
-            {
-                if (_sellSharesPerOrder.ContainsKey(order.Amount))
-                {
-                    Order oppositeOrder = _sellSharesPerOrder[order.Amount].Dequeue();
-                    
-                    //SharesToBuy -= oppositeOrder.Amount;
-                    
-                    order.OrderStatus = OrderStatus.EXECUTED;
-                    order.OrderExecutionTime = DateTime.UtcNow.ToString();
-                }
-                else
-                    return false;
-            }
-            else
-            {
-                if (_buySharesPerOrder.ContainsKey(order.Amount))
-                {
-                    Order oppositeOrder = _buySharesPerOrder[order.Amount].Dequeue();
-                    
-                    //SharesToSell -= oppositeOrder.Amount;
-                    
-                    order.OrderStatus = OrderStatus.EXECUTED;
-                    order.OrderExecutionTime = DateTime.UtcNow.ToString();
-                }
-                else
-                    return false;
-            }
+            if (!OppositeOrderExists(ref order))
+                return false;
 
-            return true;
+            Order oppositeOrder = ExecuteOppositeOrder(ref order);
+            return oppositeOrder != null;
+        }
+        
+        private bool OppositeOrderExists(ref Order order)
+        {
+            if (order.BuyOrder)
+                return _sellSharesPerOrder.ContainsKey(order.Amount);
+            else
+                return _buySharesPerOrder.ContainsKey(order.Amount);
+        }
+        
+        private Order ExecuteOppositeOrder(ref Order order)
+        {
+            var oppositeQueue = order.BuyOrder ? _sellSharesPerOrder[order.Amount] : _buySharesPerOrder[order.Amount];
+            if (oppositeQueue.Count == 0)
+                return null;
+            
+            // Execute
+            Order oppositeOrder = oppositeQueue.Dequeue();
+            
+            // Metadata
+            SharesToBuy -= order.Amount;
+            SharesToSell -= order.Amount;
+            
+            order.OrderStatus = oppositeOrder.OrderStatus = OrderStatus.EXECUTED;
+            order.OrderExecutionTime = oppositeOrder.OrderExecutionTime = DateTime.UtcNow.ToString();
+
+            return oppositeOrder;
         }
     }
 }
