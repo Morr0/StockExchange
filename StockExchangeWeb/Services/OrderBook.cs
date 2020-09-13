@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using StockExchangeWeb.Models;
 using StockExchangeWeb.Models.Orders;
 
 namespace StockExchangeWeb.Services
@@ -18,25 +17,6 @@ namespace StockExchangeWeb.Services
         
         public uint SharesToSell { get; private set; }
         public uint SharesToBuy { get; private set; }
-
-        private Dictionary<uint, Queue<Order>> CorresspondingShares(ref Order order)
-        {
-            // Init if is not
-            if (!_sellSharesPerOrder.ContainsKey(order.Amount))
-                _sellSharesPerOrder.Add(order.Amount, new Queue<Order>());
-            if (!_buySharesPerOrder.ContainsKey(order.Amount))
-                _buySharesPerOrder.Add(order.Amount, new Queue<Order>());
-
-            return order.BuyOrder ? _sellSharesPerOrder : _buySharesPerOrder;
-        }
-
-        private void CorrespondingSharesTotal(ref Order order, bool add)
-        {
-            if (order.BuyOrder)
-                SharesToSell += (uint)(add ? order.Amount : -order.Amount);
-            else
-                SharesToBuy += (uint) (add ? order.Amount : -order.Amount);
-        }
 
         /// <summary>
         /// Places an order and tries to execute.
@@ -56,11 +36,9 @@ namespace StockExchangeWeb.Services
                 if (!_buySharesPerOrder.ContainsKey(order.Amount))
                     _buySharesPerOrder.Add(order.Amount, new Queue<Order>());
                 
-                Console.WriteLine($"Pricce: {order.Amount}");
                 _buySharesPerOrder[order.Amount].Enqueue(order);
             
                 SharesToBuy += order.Amount;
-                Console.WriteLine($"SHArres: {SharesToBuy}");
             }
             else
             {
@@ -89,10 +67,8 @@ namespace StockExchangeWeb.Services
         
         private bool OppositeOrderExists(ref Order order)
         {
-            if (order.BuyOrder)
-                return _sellSharesPerOrder.ContainsKey(order.Amount);
-            else
-                return _buySharesPerOrder.ContainsKey(order.Amount);
+            return order.BuyOrder ? _sellSharesPerOrder.ContainsKey(order.Amount) 
+                : _buySharesPerOrder.ContainsKey(order.Amount);
         }
         
         private Order ExecuteOppositeOrder(ref Order order)
