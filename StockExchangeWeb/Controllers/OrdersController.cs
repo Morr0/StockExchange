@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
@@ -29,8 +30,18 @@ namespace StockExchangeWeb.Controllers
         [HttpPost]
         public async Task<IActionResult> PlaceOrder([FromBody] OrderWriteDTO orderWriteDto)
         {
+            // Series of validations
+            // BEGIN
             if (!_securitiesProvider.Securities.ContainsKey(orderWriteDto.Ticker))
-                return BadRequest();
+                return BadRequest(new JsonResult("Ticker does not exist"));
+
+            TradableSecurity security = _securitiesProvider.Securities[orderWriteDto.Ticker];
+            if (orderWriteDto.Amount == 0)
+                return BadRequest(new JsonResult("Amount of shares must not be 0"));
+            else if (security.OutstandingAmount < orderWriteDto.Amount)
+                return BadRequest(new JsonResult("Cannot ask for more shares than exists"));
+            
+            // END
             
             Order order = _mapper.Map<Order>(orderWriteDto);
 

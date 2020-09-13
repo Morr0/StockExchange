@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 using StockExchangeWeb.Models.Orders;
 
@@ -6,6 +7,8 @@ namespace StockExchangeWeb.DTOs
 {
     public class OrderWriteDTO
     {
+        private decimal _askPrice;
+        
         [NotNull]
         public OrderType OrderType { get; set; } = OrderType.LIMIT_ORDER;
         [Required]
@@ -19,6 +22,10 @@ namespace StockExchangeWeb.DTOs
         public uint Amount { get; set; }
         [Required]
         [NotNull]
-        public decimal AskPrice { get; set; }
+        public decimal AskPrice
+        {
+            get => _askPrice;
+            set => _askPrice = Math.Abs(value); 
+        }
     }
 }
