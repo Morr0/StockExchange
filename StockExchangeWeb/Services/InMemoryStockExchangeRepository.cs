@@ -63,6 +63,9 @@ namespace StockExchangeWeb.Services
                 return null;
 
             Order order = _ordersById[orderId];
+            if (order.OrderStatus == OrderStatus.DELETED)
+                return null;
+            
             if (order.OrderStatus != OrderStatus.IN_MARKET)
                 return order;
 
