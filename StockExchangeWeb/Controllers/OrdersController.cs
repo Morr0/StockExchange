@@ -29,6 +29,9 @@ namespace StockExchangeWeb.Controllers
         [HttpPost]
         public async Task<IActionResult> PlaceOrder([FromBody] OrderWriteDTO orderWriteDto)
         {
+            if (!_securitiesProvider.Securities.ContainsKey(orderWriteDto.Ticker))
+                return BadRequest();
+            
             Order order = _mapper.Map<Order>(orderWriteDto);
 
             order = _stockExchange.PlaceOrder(order);

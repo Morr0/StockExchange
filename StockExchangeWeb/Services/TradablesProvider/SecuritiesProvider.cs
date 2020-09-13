@@ -5,20 +5,17 @@ namespace StockExchangeWeb.Services.TradedEntitiesService
 {
     public class SecuritiesProvider : ISecuritiesProvider
     {
-        public Dictionary<string, TradableSecurity> GetSecurities()
+        public Dictionary<string, TradableSecurity> Securities { get; } = new Dictionary<string, TradableSecurity>
         {
-            return new Dictionary<string, TradableSecurity>
-            {
-                {"A", new TradableSecurity
-                    {
-                        Ticker = "A",
-                        SecurityType = SecurityType.STOCK,
-                        Description = "This is a security",
-                        Name = "Aaaa",
-                        OutstandingAmount = 15000
-                    } 
-                }
-            };
-        }
+            {"A", new TradableSecurity
+                {
+                    Ticker = "A",
+                    SecurityType = SecurityType.STOCK,
+                    Description = "This is a security",
+                    Name = "Aaaa",
+                    OutstandingAmount = 15000
+                } 
+            }
+        };
     }
 }

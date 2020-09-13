@@ -5,6 +5,6 @@ namespace StockExchangeWeb.Services.TradedEntitiesService
 {
     public interface ISecuritiesProvider
     {
-        Dictionary<string, TradableSecurity> GetSecurities();
+        Dictionary<string, TradableSecurity> Securities { get; }
     }
 }
