@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using StockExchangeWeb.Controllers.Bodies;
 using StockExchangeWeb.DTOs;
 using StockExchangeWeb.Models;
 using StockExchangeWeb.Models.Orders;
@@ -53,9 +54,9 @@ namespace StockExchangeWeb.Controllers
         }
 
         [HttpDelete]
-        public async Task<IActionResult> DeleteOrder([FromBody] string orderId)
+        public async Task<IActionResult> DeleteOrder([FromBody] OrderDeletionBody deletionBody)
         {
-            Order order = _stockExchange.RemoveOrder(orderId);
+            Order order = _stockExchange.RemoveOrder(deletionBody.OrderId);
             if (order == null)
                 return NotFound();
             if (order.OrderStatus == OrderStatus.EXECUTED)
