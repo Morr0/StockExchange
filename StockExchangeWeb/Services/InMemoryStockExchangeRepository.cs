@@ -8,6 +8,8 @@ namespace StockExchangeWeb.Services
     {
         private Dictionary<decimal, OrderBook> _orderBooks = new Dictionary<decimal, OrderBook>();
         
+        private decimal _lastExecutedPrice;
+        
         public Order PlaceOrder(Order order)
         {
             // To execute an order, the price and amount of shares must be the same thus there is
@@ -19,14 +21,18 @@ namespace StockExchangeWeb.Services
 
             // Place order
             bool executed = false;
-            // if (order.OrderType == OrderType.LIMIT_ORDER)
-            // {
-            //     executed = _orderBooks[order.AskPrice].PlaceAndTryExecute(order);
-            // } else if (order.OrderType == OrderType.LIMIT_ORDER_IMMEDIATE)
-            // {
-            //     executed = _orderBooks[order.AskPrice].TryExecute(order);
-            // } 
-            executed = _orderBooks[order.AskPrice].PlaceAndTryExecute(order);
+            if (order.OrderType == OrderType.LIMIT_ORDER)
+            {
+                executed = _orderBooks[order.AskPrice].PlaceAndTryExecute(order);
+            } else if (order.OrderType == OrderType.LIMIT_ORDER_IMMEDIATE)
+            {
+                executed = _orderBooks[order.AskPrice].TryExecute(order);
+            }
+            
+            // Metadata
+            if (order.OrderStatus == OrderStatus.EXECUTED)
+                _lastExecutedPrice = order.AskPrice;
+            
             // TODO add market order
             // TODO add stop order and it's types
             
@@ -38,7 +44,8 @@ namespace StockExchangeWeb.Services
 
         public OrdersPlaced GetOrdersPlaced(string ticker)
         {
-            OrdersPlaced ordersPlaced = new OrdersPlaced(ticker);
+            OrdersPlaced ordersPlaced = new OrdersPlaced(ticker, _lastExecutedPrice);
+            
             foreach (var orderBookPerPrice in _orderBooks)
             {
                 // To not overwhelm memory
