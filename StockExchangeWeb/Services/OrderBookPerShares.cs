@@ -7,7 +7,7 @@ namespace StockExchangeWeb.Services
     /// <summary>
     /// Independent of ask price. Holds the asked shares and order type.
     /// </summary>
-    internal class OrderBook
+    public class OrderBookPerShares
     {
         /// <summary>
         /// Key -> shares for each order

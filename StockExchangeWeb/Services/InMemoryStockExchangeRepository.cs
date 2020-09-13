@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using StockExchangeWeb.DTOs;
 using StockExchangeWeb.Models.Orders;
 
@@ -6,32 +7,36 @@ namespace StockExchangeWeb.Services
 {
     public class InMemoryStockExchangeRepository : IStockExchange
     {
-        private Dictionary<decimal, OrderBook> _orderBooks = new Dictionary<decimal, OrderBook>();
+        private Dictionary<string, OrderBookPerPrice> _orderBooks;
         
         private decimal _lastExecutedPrice;
+
+        public InMemoryStockExchangeRepository()
+        {
+            _orderBooks = new Dictionary<string, OrderBookPerPrice>
+            {
+                {"A", new OrderBookPerPrice()}
+            };
+        }
         
         public Order PlaceOrder(Order order)
         {
-            // To execute an order, the price and amount of shares must be the same thus there is
-            // 2 layers below.
+            string tkr = order.Ticker;
+            decimal askPrice = order.AskPrice;
             
-            // Add price to order book
-            if (!_orderBooks.ContainsKey(order.AskPrice))
-                _orderBooks.Add(order.AskPrice, new OrderBook());
-
             // Place order
             bool executed = false;
             if (order.OrderType == OrderType.LIMIT_ORDER)
             {
-                executed = _orderBooks[order.AskPrice].PlaceAndTryExecute(order);
+                executed = _orderBooks[tkr][askPrice].PlaceAndTryExecute(order);
             } else if (order.OrderType == OrderType.LIMIT_ORDER_IMMEDIATE)
             {
-                executed = _orderBooks[order.AskPrice].TryExecute(order);
+                executed = _orderBooks[tkr][askPrice].TryExecute(order);
             }
             
             // Metadata
             if (order.OrderStatus == OrderStatus.EXECUTED)
-                _lastExecutedPrice = order.AskPrice;
+                _lastExecutedPrice = askPrice;
             
             // TODO add market order
             // TODO add stop order and it's types
@@ -45,15 +50,16 @@ namespace StockExchangeWeb.Services
         public OrdersPlaced GetOrdersPlaced(string ticker)
         {
             OrdersPlaced ordersPlaced = new OrdersPlaced(ticker, _lastExecutedPrice);
-            
-            foreach (var orderBookPerPrice in _orderBooks)
+
+            var enumberable = _orderBooks[ticker].SharesOrderBooks;
+            foreach (var priceOrderBook in enumberable)
             {
                 // To not overwhelm memory
                 if (ordersPlaced.BuyOrders.Count > 10)
                     break;
                 
-                string price = orderBookPerPrice.Key.ToString();
-                OrderBook orderBook = orderBookPerPrice.Value;
+                string price = priceOrderBook.Key.ToString();
+                OrderBookPerShares orderBookPerShares = priceOrderBook.Value;
                 
                 // Init if not initialized
                 if (!ordersPlaced.BuyOrders.ContainsKey(price))
@@ -61,8 +67,8 @@ namespace StockExchangeWeb.Services
                 if (!ordersPlaced.SellOrders.ContainsKey(price))
                     ordersPlaced.SellOrders.Add(price, 0);
 
-                ordersPlaced.BuyOrders[price] = orderBook.SharesToBuy;
-                ordersPlaced.SellOrders[price] = orderBook.SharesToSell;
+                ordersPlaced.BuyOrders[price] = orderBookPerShares.SharesToBuy;
+                ordersPlaced.SellOrders[price] = orderBookPerShares.SharesToSell;
             }
 
             return ordersPlaced;

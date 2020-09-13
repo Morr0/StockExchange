@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using StockExchangeWeb.DTOs;
@@ -34,7 +35,7 @@ namespace StockExchangeWeb.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetOrders([FromRoute] string ticker)
+        public async Task<IActionResult> GetOrders([FromQuery] string ticker)
         {
             return Ok(_stockExchange.GetOrdersPlaced(ticker));
         }
