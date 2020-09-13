@@ -2,17 +2,22 @@
 using System.Collections.Generic;
 using StockExchangeWeb.DTOs;
 using StockExchangeWeb.Models.Orders;
+using StockExchangeWeb.Services.TradedEntitiesService;
 
 namespace StockExchangeWeb.Services
 {
     public class InMemoryStockExchangeRepository : IStockExchange
     {
+        private ISecuritiesProvider _securitiesProvider;
+        
         private Dictionary<string, OrderBookPerPrice> _orderBooks;
         
         private decimal _lastExecutedPrice;
 
-        public InMemoryStockExchangeRepository()
+        public InMemoryStockExchangeRepository(ISecuritiesProvider securitiesProvider)
         {
+            _securitiesProvider = securitiesProvider;
+            
             _orderBooks = new Dictionary<string, OrderBookPerPrice>
             {
                 {"A", new OrderBookPerPrice()}

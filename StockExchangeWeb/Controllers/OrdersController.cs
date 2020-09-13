@@ -6,6 +6,7 @@ using StockExchangeWeb.DTOs;
 using StockExchangeWeb.Models;
 using StockExchangeWeb.Models.Orders;
 using StockExchangeWeb.Services;
+using StockExchangeWeb.Services.TradedEntitiesService;
 
 namespace StockExchangeWeb.Controllers
 {
@@ -13,11 +14,14 @@ namespace StockExchangeWeb.Controllers
     [Route("api/order")]
     public class OrdersController : Controller
     {
+        private ISecuritiesProvider _securitiesProvider;
         private IMapper _mapper;
         private IStockExchange _stockExchange;
 
-        public OrdersController(IMapper mapper, IStockExchange stockExchange)
+        public OrdersController(IMapper mapper, ISecuritiesProvider securitiesProvider
+            , IStockExchange stockExchange)
         {
+            _securitiesProvider = securitiesProvider;
             _mapper = mapper;
             _stockExchange = stockExchange;
         }

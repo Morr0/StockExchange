@@ -12,6 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using StockExchangeWeb.Services;
+using StockExchangeWeb.Services.TradedEntitiesService;
 
 namespace StockExchangeWeb
 {
@@ -27,10 +28,12 @@ namespace StockExchangeWeb
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddSingleton<ISecuritiesProvider, SecuritiesProvider>();
+            
             services.AddControllers();
 
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-
+            
             services.AddSingleton<IStockExchange, InMemoryStockExchangeRepository>();
         }
 
