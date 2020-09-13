@@ -3,6 +3,7 @@
     public enum OrderStatus : byte
     {
         IN_MARKET,
-        EXECUTED
+        EXECUTED,
+        DELETED
     }
 }

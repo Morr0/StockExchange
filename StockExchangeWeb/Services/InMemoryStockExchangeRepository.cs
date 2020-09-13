@@ -9,6 +9,8 @@ namespace StockExchangeWeb.Services
     public class InMemoryStockExchangeRepository : IStockExchange
     {
         private ISecuritiesProvider _securitiesProvider;
+
+        private Dictionary<string, Order> _ordersById;
         
         private Dictionary<string, OrderBookPerPrice> _orderBooks;
         
@@ -18,6 +20,7 @@ namespace StockExchangeWeb.Services
         {
             _securitiesProvider = securitiesProvider;
             
+            _ordersById = new Dictionary<string, Order>();
             _orderBooks = new Dictionary<string, OrderBookPerPrice>
             {
                 {"A", new OrderBookPerPrice()}
@@ -30,6 +33,8 @@ namespace StockExchangeWeb.Services
             decimal askPrice = order.AskPrice;
             
             // Place order
+            _ordersById.Add(order.Id, order);
+            
             bool executed = false;
             if (order.OrderType == OrderType.LIMIT_ORDER)
             {
@@ -49,6 +54,21 @@ namespace StockExchangeWeb.Services
             // TODO execute order immediately if a corresponding order exists
             // TODO add order to history of orders
 
+            return order;
+        }
+
+        public Order RemoveOrder(string orderId)
+        {
+            if (!_ordersById.ContainsKey(orderId))
+                return null;
+
+            Order order = _ordersById[orderId];
+            if (order.OrderStatus != OrderStatus.IN_MARKET)
+                return order;
+
+            order.OrderStatus = OrderStatus.DELETED;
+            order.OrderDeletionTime = DateTime.UtcNow.ToString();
+            
             return order;
         }
 

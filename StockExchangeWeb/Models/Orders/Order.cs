@@ -20,6 +20,14 @@ namespace StockExchangeWeb.Models.Orders
 
         public string OrderPutTime { get; set; } = DateTime.UtcNow.ToString();
         
+        /// <summary>
+        /// Only applicable to executed orders.
+        /// </summary>
         public string OrderExecutionTime { get; set; }
+        
+        /// <summary>
+        /// Only applicable to orders when requested a deletion.
+        /// </summary>
+        public string OrderDeletionTime { get; set; }
     }
 }

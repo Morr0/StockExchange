@@ -52,6 +52,18 @@ namespace StockExchangeWeb.Controllers
             return Ok(order);
         }
 
+        [HttpDelete]
+        public async Task<IActionResult> DeleteOrder([FromBody] string orderId)
+        {
+            Order order = _stockExchange.RemoveOrder(orderId);
+            if (order == null)
+                return NotFound();
+            if (order.OrderStatus == OrderStatus.EXECUTED)
+                return BadRequest(order);
+
+            return Ok(order);
+        }
+
         [HttpGet]
         public async Task<IActionResult> GetOrders([FromQuery] string ticker)
         {
