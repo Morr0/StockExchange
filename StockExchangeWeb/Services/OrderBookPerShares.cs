@@ -15,8 +15,8 @@ namespace StockExchangeWeb.Services
         private Dictionary<uint, Queue<Order>> _buySharesPerOrder = new Dictionary<uint, Queue<Order>>();
         private Dictionary<uint, Queue<Order>> _sellSharesPerOrder = new Dictionary<uint, Queue<Order>>();
         
-        public uint SharesToSell { get; private set; }
-        public uint SharesToBuy { get; private set; }
+        public uint SharesToSell { get; set; }
+        public uint SharesToBuy { get; set; }
 
         /// <summary>
         /// Places an order and tries to execute.
@@ -79,7 +79,13 @@ namespace StockExchangeWeb.Services
             
             // Execute
             Order oppositeOrder = oppositeQueue.Dequeue();
-            
+            // While loop to skip and dequeue deleted orders
+            while (oppositeQueue.Count > 0)
+            {
+                if (oppositeOrder.OrderStatus != OrderStatus.IN_MARKET)
+                    oppositeOrder = oppositeQueue.Dequeue();
+            }
+
             // Metadata
             SharesToBuy -= order.Amount;
             SharesToSell -= order.Amount;

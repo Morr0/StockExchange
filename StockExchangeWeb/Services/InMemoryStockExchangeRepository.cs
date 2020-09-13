@@ -69,6 +69,12 @@ namespace StockExchangeWeb.Services
             order.OrderStatus = OrderStatus.DELETED;
             order.OrderDeletionTime = DateTime.UtcNow.ToString();
             
+            // Edit order shares metadata from order book based on order type
+            if (order.BuyOrder)
+                _orderBooks[order.Ticker][order.AskPrice].SharesToBuy -= order.Amount;
+            else
+                _orderBooks[order.Ticker][order.AskPrice].SharesToSell -= order.Amount;
+            
             return order;
         }
 
