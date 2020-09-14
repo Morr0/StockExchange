@@ -69,17 +69,6 @@ namespace StockExchangeWeb.Services
         // Re-evaluates the bid/ask prices to the closest differences
         private void ReevaluatePricing(ref Order order)
         {
-            // if (_lastClosestAsk == 0)
-            // {
-            //     if (order.BuyOrder)
-            //         _lastClosestAsk = order.AskPrice;
-            // } 
-            // if (_lastClosestBid == 0)
-            // {
-            //     if (!order.BuyOrder)
-            //         _lastClosestBid = order.AskPrice;
-            // }
-
             if (order.BuyOrder)
             {
                 _lastClosestAsk = order.AskPrice;
@@ -91,11 +80,8 @@ namespace StockExchangeWeb.Services
 
             if (order.OrderStatus == OrderStatus.EXECUTED)
                 _lastExecutedPrice = order.ExecutedPrice;
-
-            // Spread calculations
-            decimal currentBidAskSpread = Math.Abs(_lastClosestBid - _lastClosestAsk);
-            if (currentBidAskSpread <= _lastClosestBidAskSpread)
-                _lastClosestBidAskSpread = currentBidAskSpread;
+            
+            _lastClosestBidAskSpread = Math.Abs(_lastClosestBid - _lastClosestAsk);
         }
 
 

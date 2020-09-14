@@ -47,6 +47,7 @@ namespace SecuritiesExchangeTest
             Assert.Equal(0u, ordersPlaced.SellOrders[askPrice.ToString()]);
             
             Assert.Equal(askPrice, ordersPlaced.ClosestAskPrice);
+            Assert.Equal(askPrice, ordersPlaced.ClosestSpread);
         }
 
         [Fact]
@@ -86,6 +87,7 @@ namespace SecuritiesExchangeTest
             
             Assert.Equal(askPrice, ordersPlaced.ClosestAskPrice);
             Assert.Equal(askPrice, ordersPlaced.ClosestBidPrice);
+            Assert.Equal(0m, ordersPlaced.ClosestSpread);
         }
 
         [Fact]
@@ -97,6 +99,7 @@ namespace SecuritiesExchangeTest
             uint amount = 500;
             decimal askBuyPrice = 13.0m;
             decimal askSellPrice = 13.4m;
+            decimal expectedSpread = Math.Abs(askBuyPrice - askSellPrice);
             Order buyOrder = new Order
             {
                 Ticker = ticker,
@@ -129,6 +132,7 @@ namespace SecuritiesExchangeTest
             
             Assert.Equal(askBuyPrice, ordersPlaced.ClosestAskPrice);
             Assert.Equal(askSellPrice, ordersPlaced.ClosestBidPrice);
+            Assert.Equal(expectedSpread, ordersPlaced.ClosestSpread);
         }
 
         [Fact]
@@ -174,7 +178,8 @@ namespace SecuritiesExchangeTest
             
             Assert.Equal(amount, ordersPlaced.SellOrders[thirdAskPrice.ToString()]);
             Assert.Equal(thirdAskPrice, placedThridOrder.AskPrice);
-            Assert.Equal(thirdAskPrice, ordersPlaced.ClosestBidPrice);    
+            Assert.Equal(thirdAskPrice, ordersPlaced.ClosestBidPrice);   
+            Assert.Equal(expectedSpread, ordersPlaced.ClosestSpread); 
         }
     }
 }
