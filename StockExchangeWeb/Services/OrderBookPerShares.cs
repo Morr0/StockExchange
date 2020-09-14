@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using StockExchangeWeb.Models.Orders;
+using StockExchangeWeb.Utilities;
 
 namespace StockExchangeWeb.Services
 {
@@ -12,8 +13,8 @@ namespace StockExchangeWeb.Services
         /// <summary>
         /// Key -> shares for each order
         /// </summary>
-        private Dictionary<uint, Queue<Order>> _buySharesPerOrder = new Dictionary<uint, Queue<Order>>();
-        private Dictionary<uint, Queue<Order>> _sellSharesPerOrder = new Dictionary<uint, Queue<Order>>();
+        private readonly Dictionary<uint, SecurityOrderQueue> _buySharesPerOrder = new Dictionary<uint, SecurityOrderQueue>();
+        private readonly Dictionary<uint, SecurityOrderQueue> _sellSharesPerOrder = new Dictionary<uint, SecurityOrderQueue>();
         
         public uint SharesToSell { get; set; }
         public uint SharesToBuy { get; set; }
@@ -34,18 +35,18 @@ namespace StockExchangeWeb.Services
             if (order.BuyOrder)
             {
                 if (!_buySharesPerOrder.ContainsKey(order.Amount))
-                    _buySharesPerOrder.Add(order.Amount, new Queue<Order>());
+                    _buySharesPerOrder.Add(order.Amount, new SecurityOrderQueue());
                 
-                _buySharesPerOrder[order.Amount].Enqueue(order);
+                _buySharesPerOrder[order.Amount].Enqueue(ref order);
             
                 SharesToBuy += order.Amount;
             }
             else
             {
                 if (!_sellSharesPerOrder.ContainsKey(order.Amount))
-                    _sellSharesPerOrder.Add(order.Amount, new Queue<Order>());
+                    _sellSharesPerOrder.Add(order.Amount, new SecurityOrderQueue());
                 
-                _sellSharesPerOrder[order.Amount].Enqueue(order);
+                _sellSharesPerOrder[order.Amount].Enqueue(ref order);
             
                 SharesToSell += order.Amount;
             }
