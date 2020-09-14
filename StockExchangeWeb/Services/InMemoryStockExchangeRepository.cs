@@ -70,13 +70,9 @@ namespace StockExchangeWeb.Services
         private void ReevaluatePricing(ref Order order)
         {
             if (order.BuyOrder)
-            {
                 _lastClosestAsk = order.AskPrice;
-            }
             else
-            {
                 _lastClosestBid = order.AskPrice;
-            }
 
             if (order.OrderStatus == OrderStatus.EXECUTED)
                 _lastExecutedPrice = order.ExecutedPrice;
@@ -105,6 +101,8 @@ namespace StockExchangeWeb.Services
                 _orderBooks[order.Ticker][order.AskPrice].SharesToBuy -= order.Amount;
             else
                 _orderBooks[order.Ticker][order.AskPrice].SharesToSell -= order.Amount;
+            
+            ReevaluatePricing(ref order);
             
             return order;
         }
