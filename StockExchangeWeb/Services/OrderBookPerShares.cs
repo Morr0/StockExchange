@@ -60,7 +60,12 @@ namespace StockExchangeWeb.Services
         public bool TryExecute(Order order)
         {
             if (!OppositeOrderExists(ref order))
+            {
+                if (order.OrderType == OrderType.LIMIT_ORDER_IMMEDIATE)
+                    order.OrderStatus = OrderStatus.NO_MATCH;
+                
                 return false;
+            }
 
             Order oppositeOrder = ExecuteOppositeOrder(ref order);
             return oppositeOrder != null;
@@ -94,7 +99,7 @@ namespace StockExchangeWeb.Services
             // Metadata
             SharesToBuy -= order.Amount;
             SharesToSell -= order.Amount;
-            
+
             order.OrderStatus = oppositeOrder.OrderStatus = OrderStatus.EXECUTED;
             order.OrderExecutionTime = oppositeOrder.OrderExecutionTime = DateTime.UtcNow.ToString();
 

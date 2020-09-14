@@ -11,6 +11,8 @@ namespace SecuritiesExchangeTest
     {
         private static ISecuritiesProvider _securitiesProvider = new SecuritiesProvider();
         
+        #region Normal limit orders
+        
         [Fact]
         public void BasicPlaceASingleOrderTest()
         {
@@ -181,5 +183,75 @@ namespace SecuritiesExchangeTest
             Assert.Equal(thirdAskPrice, ordersPlaced.ClosestBidPrice);   
             Assert.Equal(expectedSpread, ordersPlaced.ClosestSpread); 
         }
+        #endregion
+        
+        #region Immediate limit orders
+
+        [Fact]
+        public void ImmediateOrderShouldNotPersistOnEmptyMarket()
+        {
+            // Arrange
+            IStockExchange stockExchange = new InMemoryStockExchangeRepository(_securitiesProvider);
+            string ticker = "A";
+            uint amount = 500;
+            decimal askPrice = 13.0m;
+            Order order = new Order
+            {
+                Ticker = ticker,
+                Amount = amount,
+                AskPrice = askPrice,
+                BuyOrder = true,
+                OrderType = OrderType.LIMIT_ORDER_IMMEDIATE
+            };
+
+            // Act
+            Order placedOrder = stockExchange.PlaceOrder(order);
+            OrdersPlaced ordersPlaced = stockExchange.GetOrdersPlaced(ticker);
+
+            // Assert
+            Assert.True(placedOrder.OrderStatus == OrderStatus.NO_MATCH);
+            
+            Assert.Equal(0m, ordersPlaced.ClosestAskPrice);
+            Assert.Equal(0m, ordersPlaced.ClosestBidPrice);
+        }
+
+        [Fact]
+        public void ImmediateOrderShouldExecuteOnMarketWithLiquidity()
+        {
+            // Arrange
+            IStockExchange stockExchange = new InMemoryStockExchangeRepository(_securitiesProvider);
+            string ticker = "A";
+            uint amount = 1500;
+            decimal askPrice = 13.0m;
+            Order order1 = new Order
+            {
+                Ticker = ticker,
+                Amount = amount,
+                AskPrice = askPrice,
+                BuyOrder = true,
+            };
+            Order order2 = new Order
+            {
+                Ticker = ticker,
+                Amount = amount,
+                AskPrice = askPrice,
+                BuyOrder = false,
+                OrderType = OrderType.LIMIT_ORDER_IMMEDIATE
+            };
+
+            // Act
+            Order placedOrder1 = stockExchange.PlaceOrder(order1);
+            Order placedOrder2 = stockExchange.PlaceOrder(order2);
+            OrdersPlaced ordersPlaced = stockExchange.GetOrdersPlaced(ticker);
+
+            // Assert
+            Assert.Equal(OrderStatus.EXECUTED, placedOrder2.OrderStatus);
+            
+            Assert.Equal(0u, ordersPlaced.BuyOrders[askPrice.ToString()]);
+            // TODO there is a bug below, most likely due to the language, remedy it
+            //Assert.Equal(0u, ordersPlaced.SellOrders[askPrice.ToString()]);
+        }
+        
+        #endregion
     }
 }

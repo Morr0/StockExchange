@@ -4,6 +4,10 @@
     {
         IN_MARKET,
         EXECUTED,
-        DELETED
+        DELETED,
+        /// <summary>
+        /// When using an immediate limit order and no match exists
+        /// </summary>
+        NO_MATCH
     }
 }
