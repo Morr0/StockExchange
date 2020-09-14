@@ -116,7 +116,8 @@ namespace StockExchangeWeb.Services
 
         public OrdersPlaced GetOrdersPlaced(string ticker)
         {
-            OrdersPlaced ordersPlaced = new OrdersPlaced(ticker, _lastExecutedPrice);
+            OrdersPlaced ordersPlaced = new OrdersPlaced(ticker, _lastExecutedPrice, 
+                _lastClosestAsk, _lastClosestBid, _lastClosestBidAskSpread);
 
             var enumberable = _orderBooks[ticker].SharesOrderBooks;
             foreach (var priceOrderBook in enumberable)
