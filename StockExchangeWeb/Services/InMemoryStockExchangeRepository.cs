@@ -69,10 +69,12 @@ namespace StockExchangeWeb.Services
         // Re-evaluates the bid/ask prices to the closest differences
         private void ReevaluatePricing(ref Order order)
         {
+            decimal price = order.OrderStatus == OrderStatus.EXECUTED ? order.ExecutedPrice : order.AskPrice;
+            
             if (order.BuyOrder)
-                _lastClosestAsk = order.AskPrice;
+                _lastClosestAsk = price;
             else
-                _lastClosestBid = order.AskPrice;
+                _lastClosestBid = price;
 
             if (order.OrderStatus == OrderStatus.EXECUTED)
                 _lastExecutedPrice = order.ExecutedPrice;
