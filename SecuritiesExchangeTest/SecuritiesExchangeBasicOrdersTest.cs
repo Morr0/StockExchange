@@ -45,6 +45,8 @@ namespace SecuritiesExchangeTest
             
             Assert.Equal(amount, ordersPlaced.BuyOrders[askPrice.ToString()]);
             Assert.Equal(0u, ordersPlaced.SellOrders[askPrice.ToString()]);
+            
+            Assert.Equal(askPrice, ordersPlaced.ClosestAskPrice);
         }
 
         [Fact]
@@ -81,6 +83,9 @@ namespace SecuritiesExchangeTest
             
             Assert.Equal(0u, ordersPlaced.BuyOrders[askPrice.ToString()]);
             Assert.Equal(0u, ordersPlaced.SellOrders[askPrice.ToString()]);
+            
+            Assert.Equal(askPrice, ordersPlaced.ClosestAskPrice);
+            Assert.Equal(askPrice, ordersPlaced.ClosestBidPrice);
         }
 
         [Fact]
@@ -121,6 +126,9 @@ namespace SecuritiesExchangeTest
             
             Assert.Equal(0u, ordersPlaced.SellOrders[askBuyPrice.ToString()]);
             Assert.Equal(amount, ordersPlaced.SellOrders[askSellPrice.ToString()]);
+            
+            Assert.Equal(askBuyPrice, ordersPlaced.ClosestAskPrice);
+            Assert.Equal(askSellPrice, ordersPlaced.ClosestBidPrice);
         }
     }
 }

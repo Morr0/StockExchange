@@ -70,21 +70,33 @@ namespace StockExchangeWeb.Services
         private void ReevaluatePricing(ref Order order)
         {
             decimal currentAsk = _lastClosestAsk, currentBid = _lastClosestBid;
-            if (order.BuyOrder)
-                currentAsk = order.ExecutedPrice;
-            else
-                currentBid = order.ExecutedPrice;
+            
+            if (currentAsk == 0)
+                currentAsk = order.BuyOrder ? order.AskPrice : 0;
+            if (currentBid == 0)
+                currentBid = order.BuyOrder ? 0 : order.AskPrice;
+
+            if (order.OrderStatus == OrderStatus.EXECUTED)
+            {
+                if (order.BuyOrder)
+                    currentAsk = order.ExecutedPrice;
+                else
+                    currentBid = order.ExecutedPrice;
+            }
 
             decimal currentBidAskSpread = Math.Abs(currentBid - currentAsk);
 
+            _lastClosestAsk = currentAsk;
+            _lastClosestBid = currentBid;
+
+            // if (currentAsk < _lastClosestAsk)
+            //     _lastClosestAsk = currentAsk;
+            // else if (currentBid < _lastClosestBid)
+            //     _lastClosestBid = currentBid;
+
             if (currentBidAskSpread <= _lastClosestBidAskSpread)
-            {
                 _lastClosestBidAskSpread = currentBidAskSpread;
 
-                _lastClosestAsk = currentAsk;
-                _lastClosestBid = currentBid;
-            }
-            
             if (order.OrderStatus == OrderStatus.EXECUTED)
                 _lastExecutedPrice = order.ExecutedPrice;
         }
