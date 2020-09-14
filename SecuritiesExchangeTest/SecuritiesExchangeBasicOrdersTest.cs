@@ -130,5 +130,51 @@ namespace SecuritiesExchangeTest
             Assert.Equal(askBuyPrice, ordersPlaced.ClosestAskPrice);
             Assert.Equal(askSellPrice, ordersPlaced.ClosestBidPrice);
         }
+
+        [Fact]
+        public void TwoLimitOrdersSamePriceSameAmountExecutedThenPlaceADifferentOrder()
+        {
+            // Arrange
+            IStockExchange stockExchange = new InMemoryStockExchangeRepository(_securitiesProvider);
+            string ticker = "A";
+            uint amount = 500;
+            decimal askPrice = 13.0m;
+            decimal thirdAskPrice = 14.3m;
+            decimal expectedSpread = Math.Abs(askPrice - thirdAskPrice);
+            Order buyOrder = new Order
+            {
+                Ticker = ticker,
+                Amount = amount,
+                AskPrice = askPrice,
+                BuyOrder = true,
+            };
+            Order sellOrder = new Order
+            {
+                Ticker = ticker,
+                Amount = amount,
+                AskPrice = askPrice,
+                BuyOrder = false,
+            };
+            Order thirdOrder = new Order
+            {
+                Ticker = ticker,
+                Amount = amount,
+                AskPrice = thirdAskPrice,
+                BuyOrder = false,
+            };
+
+            // Act
+            Order placedBuyOrder = stockExchange.PlaceOrder(buyOrder);
+            Order placedSellOrder = stockExchange.PlaceOrder(sellOrder);
+            Order placedThridOrder = stockExchange.PlaceOrder(thirdOrder);
+            OrdersPlaced ordersPlaced = stockExchange.GetOrdersPlaced(ticker);
+            
+            // Assert
+            Assert.Equal(askPrice, ordersPlaced.ClosestAskPrice);
+            
+            Assert.Equal(amount, ordersPlaced.SellOrders[thirdAskPrice.ToString()]);
+            Assert.Equal(thirdAskPrice, placedThridOrder.AskPrice);
+            Assert.Equal(thirdAskPrice, ordersPlaced.ClosestBidPrice);    
+        }
     }
 }
