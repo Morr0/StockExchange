@@ -15,6 +15,10 @@ namespace StockExchangeWeb.Services
         private Dictionary<string, OrderBookPerPrice> _orderBooks;
         
         private decimal _lastExecutedPrice;
+        // Ask/Bid
+        private decimal _lastClosestAsk = 0;
+        private decimal _lastClosestBid = 0;
+        private decimal _lastClosestBidAskSpread;
 
         public InMemoryStockExchangeRepository(ISecuritiesProvider securitiesProvider)
         {
@@ -36,18 +40,23 @@ namespace StockExchangeWeb.Services
             _ordersById.Add(order.Id, order);
             
             bool executed = false;
-            if (order.OrderType == OrderType.LIMIT_ORDER)
+            switch (order.OrderType)
             {
-                executed = _orderBooks[tkr][askPrice].PlaceAndTryExecute(order);
-            } else if (order.OrderType == OrderType.LIMIT_ORDER_IMMEDIATE)
-            {
-                executed = _orderBooks[tkr][askPrice].TryExecute(order);
+                case OrderType.MARKET_ORDER:
+                    // TODO know the mechanics of which price makes the market
+                    decimal price = order.BuyOrder ? _lastClosestBid : _lastClosestAsk;
+                    executed = _orderBooks[tkr][price].PlaceAndTryExecute(order);
+                    break;
+                case OrderType.LIMIT_ORDER:
+                    executed = _orderBooks[tkr][askPrice].PlaceAndTryExecute(order);
+                    break;
+                case OrderType.LIMIT_ORDER_IMMEDIATE:
+                    executed = _orderBooks[tkr][askPrice].TryExecute(order);
+                    break;
             }
             
-            // Metadata
-            if (order.OrderStatus == OrderStatus.EXECUTED)
-                _lastExecutedPrice = askPrice;
-            
+            ReevaluatePricing(ref order);
+
             // TODO add market order
             // TODO add stop order and it's types
             
@@ -56,6 +65,30 @@ namespace StockExchangeWeb.Services
 
             return order;
         }
+
+        // Re-evaluates the bid/ask prices to the closest differences
+        private void ReevaluatePricing(ref Order order)
+        {
+            decimal currentAsk = _lastClosestAsk, currentBid = _lastClosestBid;
+            if (order.BuyOrder)
+                currentAsk = order.ExecutedPrice;
+            else
+                currentBid = order.ExecutedPrice;
+
+            decimal currentBidAskSpread = Math.Abs(currentBid - currentAsk);
+
+            if (currentBidAskSpread <= _lastClosestBidAskSpread)
+            {
+                _lastClosestBidAskSpread = currentBidAskSpread;
+
+                _lastClosestAsk = currentAsk;
+                _lastClosestBid = currentBid;
+            }
+            
+            if (order.OrderStatus == OrderStatus.EXECUTED)
+                _lastExecutedPrice = order.ExecutedPrice;
+        }
+
 
         public Order RemoveOrder(string orderId)
         {

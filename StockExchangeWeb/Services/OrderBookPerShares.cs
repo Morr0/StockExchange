@@ -86,6 +86,10 @@ namespace StockExchangeWeb.Services
                 if (oppositeOrder.OrderStatus != OrderStatus.IN_MARKET)
                     oppositeOrder = oppositeQueue.Dequeue();
             }
+            
+            // Using the oppositeOrder price so it conforms to market orders as well
+            oppositeOrder.ExecutedPrice = oppositeOrder.AskPrice;
+            order.ExecutedPrice = oppositeOrder.ExecutedPrice;
 
             // Metadata
             SharesToBuy -= order.Amount;

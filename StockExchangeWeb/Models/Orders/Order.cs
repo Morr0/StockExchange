@@ -17,6 +17,11 @@ namespace StockExchangeWeb.Models.Orders
         public uint Amount { get; set; }
         
         public decimal AskPrice { get; set; }
+        
+        /// <summary>
+        /// This is important for market orders as they do not have an asking price.
+        /// </summary>
+        public decimal ExecutedPrice { get; set; }
 
         public string OrderPutTime { get; set; } = DateTime.UtcNow.ToString();
         
