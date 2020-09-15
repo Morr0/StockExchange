@@ -1,4 +1,5 @@
-﻿using StockExchangeWeb.DTOs;
+﻿using System.Threading.Tasks;
+using StockExchangeWeb.DTOs;
 using StockExchangeWeb.Models.Orders;
 
 namespace StockExchangeWeb.Services
@@ -7,7 +8,7 @@ namespace StockExchangeWeb.Services
     {
         /// <param name="order"></param>
         /// <returns>Null for was not able to place the order.</returns>
-        Order PlaceOrder(Order order);
+        Task<Order> PlaceOrder(Order order);
 
         Order RemoveOrder(string orderId);
         

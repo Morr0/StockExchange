@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using StockExchangeWeb.DTOs;
 using StockExchangeWeb.Models.Orders;
 using StockExchangeWeb.Services;
@@ -205,7 +206,7 @@ namespace SecuritiesExchangeTest
             };
 
             // Act
-            Order placedOrder = stockExchange.PlaceOrder(order);
+            Order placedOrder = await stockExchange.PlaceOrder(order);
             OrdersPlaced ordersPlaced = stockExchange.GetOrdersPlaced(ticker);
 
             // Assert
@@ -216,7 +217,7 @@ namespace SecuritiesExchangeTest
         }
 
         [Fact]
-        public void ImmediateOrderShouldExecuteOnMarketWithLiquidity()
+        public async Task ImmediateOrderShouldExecuteOnMarketWithLiquidity()
         {
             // Arrange
             IStockExchange stockExchange = new InMemoryStockExchangeRepository(_securitiesProvider);
@@ -240,8 +241,8 @@ namespace SecuritiesExchangeTest
             };
 
             // Act
-            Order placedOrder1 = stockExchange.PlaceOrder(order1);
-            Order placedOrder2 = stockExchange.PlaceOrder(order2);
+            Order placedOrder1 = await stockExchange.PlaceOrder(order1);
+            Order placedOrder2 = await stockExchange.PlaceOrder(order2);
             OrdersPlaced ordersPlaced = stockExchange.GetOrdersPlaced(ticker);
 
             // Assert

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using StockExchangeWeb.DTOs;
 using StockExchangeWeb.Models.Orders;
+using StockExchangeWeb.Services.HistoryService;
 using StockExchangeWeb.Services.TradedEntitiesService;
 
 namespace StockExchangeWeb.Services
@@ -9,6 +11,7 @@ namespace StockExchangeWeb.Services
     public class InMemoryStockExchangeRepository : IStockExchange
     {
         private ISecuritiesProvider _securitiesProvider;
+        private IOrdersHistory _ordersHistory;
 
         private Dictionary<string, Order> _ordersById;
         
@@ -20,9 +23,10 @@ namespace StockExchangeWeb.Services
         private decimal _lastClosestBid = 0;
         private decimal _lastClosestBidAskSpread;
 
-        public InMemoryStockExchangeRepository(ISecuritiesProvider securitiesProvider)
+        public InMemoryStockExchangeRepository(ISecuritiesProvider securitiesProvider, IOrdersHistory ordersHistory)
         {
             _securitiesProvider = securitiesProvider;
+            _ordersHistory = ordersHistory;
             
             _ordersById = new Dictionary<string, Order>();
             _orderBooks = new Dictionary<string, OrderBookPerPrice>
@@ -31,7 +35,7 @@ namespace StockExchangeWeb.Services
             };
         }
         
-        public Order PlaceOrder(Order order)
+        public async Task<Order> PlaceOrder(Order order)
         {
             string tkr = order.Ticker;
             decimal askPrice = order.AskPrice;
@@ -39,25 +43,25 @@ namespace StockExchangeWeb.Services
             // Place order
             _ordersById.Add(order.Id, order);
             
-            bool executed = false;
+            Dictionary<string, Order> ordersInvolved = null;
             switch (order.OrderType)
             {
                 case OrderType.MARKET_ORDER:
                     // TODO know the mechanics of which price makes the market
                     decimal price = order.BuyOrder ? _lastClosestBid : _lastClosestAsk;
-                    executed = _orderBooks[tkr][price].PlaceAndTryExecute(order);
+                    ordersInvolved = _orderBooks[tkr][price].PlaceAndTryExecute(order);
                     break;
                 case OrderType.LIMIT_ORDER:
-                    executed = _orderBooks[tkr][askPrice].PlaceAndTryExecute(order);
+                    ordersInvolved = _orderBooks[tkr][askPrice].PlaceAndTryExecute(order);
                     break;
                 case OrderType.LIMIT_ORDER_IMMEDIATE:
-                    executed = _orderBooks[tkr][askPrice].TryExecute(order);
+                    ordersInvolved = _orderBooks[tkr][askPrice].TryExecute(order);
                     break;
             }
             
             ReevaluatePricing(ref order);
             
-            // TODO add order to history of orders
+            await _ordersHistory.ArchiveOrder(ordersInvolved);
 
             return order;
         }

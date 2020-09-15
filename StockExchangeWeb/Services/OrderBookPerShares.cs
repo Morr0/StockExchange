@@ -24,7 +24,7 @@ namespace StockExchangeWeb.Services
         /// </summary>
         /// <param name="order"></param>
         /// <returns>True -> Executed</returns>
-        public bool PlaceAndTryExecute(Order order)
+        public Dictionary<string, Order> PlaceAndTryExecute(Order order)
         {
             PlaceOrder(ref order);
             return TryExecute(order);
@@ -57,18 +57,26 @@ namespace StockExchangeWeb.Services
         /// </summary>
         /// <param name="order"></param>
         /// <returns>True -> Executed</returns>
-        public bool TryExecute(Order order)
+        public Dictionary<string, Order> TryExecute(Order order)
         {
+            Dictionary<string, Order> ordersInvolved = new Dictionary<string, Order>
+            {
+                // Will always execute regardless
+                {order.Id, order}
+            };
+
             if (!OppositeOrderExists(ref order))
             {
                 if (order.OrderType == OrderType.LIMIT_ORDER_IMMEDIATE)
                     order.OrderStatus = OrderStatus.NO_MATCH;
-                
-                return false;
+
+                return ordersInvolved;
             }
 
             Order oppositeOrder = ExecuteOppositeOrder(ref order);
-            return oppositeOrder != null;
+            ordersInvolved.Add(oppositeOrder.Id, oppositeOrder);
+
+            return ordersInvolved;
         }
         
         private bool OppositeOrderExists(ref Order order)

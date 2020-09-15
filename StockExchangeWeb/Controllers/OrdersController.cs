@@ -46,7 +46,7 @@ namespace StockExchangeWeb.Controllers
             
             Order order = _mapper.Map<Order>(orderWriteDto);
 
-            order = _stockExchange.PlaceOrder(order);
+            order = await _stockExchange.PlaceOrder(order);
             if (order == null)
                 return BadRequest();
 
