@@ -1,6 +1,8 @@
-﻿using StockExchangeWeb.DTOs;
+﻿using System.Threading.Tasks;
+using StockExchangeWeb.DTOs;
 using StockExchangeWeb.Models.Orders;
 using StockExchangeWeb.Services;
+using StockExchangeWeb.Services.HistoryService;
 using StockExchangeWeb.Services.TradedEntitiesService;
 using Xunit;
 
@@ -8,13 +10,14 @@ namespace SecuritiesExchangeTest
 {
     public class SecuritiesExchangeMarketOrdersAndLimitOrdersTest
     {
+        private static IOrdersHistory _ordersHistory = new OrdersHistoryRepository();
         private static ISecuritiesProvider _securitiesProvider = new SecuritiesProvider();
         
         [Fact]
-        public void PlaceMarketOrder()
+        public async Task PlaceMarketOrder()
         {
             // Arrange
-            IStockExchange stockExchange = new InMemoryStockExchangeRepository(_securitiesProvider);
+            IStockExchange stockExchange = new InMemoryStockExchangeRepository(_securitiesProvider, _ordersHistory);
             string ticker = "A";
             uint amount = 500;
             decimal askPrice = 13.0m;
@@ -28,7 +31,7 @@ namespace SecuritiesExchangeTest
             };
 
             // Act
-            Order placedOrder = stockExchange.PlaceOrder(order);
+            Order placedOrder = await stockExchange.PlaceOrder(order);
             OrdersPlaced ordersPlaced = stockExchange.GetOrdersPlaced(ticker);
 
             // Assert
@@ -36,10 +39,10 @@ namespace SecuritiesExchangeTest
         }
 
         [Fact]
-        public void PlaceLimitOrderThenMarketOrderShouldExecute()
+        public async Task PlaceLimitOrderThenMarketOrderShouldExecute()
         {
             // Arrange
-            IStockExchange stockExchange = new InMemoryStockExchangeRepository(_securitiesProvider);
+            IStockExchange stockExchange = new InMemoryStockExchangeRepository(_securitiesProvider, _ordersHistory);
             string ticker = "A";
             uint amount = 500;
             decimal askPrice = 13.0m;
@@ -60,8 +63,8 @@ namespace SecuritiesExchangeTest
             };
 
             // Act
-            Order placedLimitOrder = stockExchange.PlaceOrder(limitOrder);
-            Order placedMarketOrder = stockExchange.PlaceOrder(marketOrder);
+            Order placedLimitOrder = await stockExchange.PlaceOrder(limitOrder);
+            Order placedMarketOrder = await stockExchange.PlaceOrder(marketOrder);
             OrdersPlaced ordersPlaced = stockExchange.GetOrdersPlaced(ticker);
             
             // Assert

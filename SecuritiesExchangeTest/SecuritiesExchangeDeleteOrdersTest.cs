@@ -1,6 +1,8 @@
-﻿using StockExchangeWeb.DTOs;
+﻿using System.Threading.Tasks;
+using StockExchangeWeb.DTOs;
 using StockExchangeWeb.Models.Orders;
 using StockExchangeWeb.Services;
+using StockExchangeWeb.Services.HistoryService;
 using StockExchangeWeb.Services.TradedEntitiesService;
 using Xunit;
 
@@ -8,13 +10,14 @@ namespace SecuritiesExchangeTest
 {
     public class SecuritiesExchangeDeleteOrdersTest
     {
+        private static IOrdersHistory _ordersHistory = new OrdersHistoryRepository();
         private static ISecuritiesProvider _securitiesProvider = new SecuritiesProvider();
         
         [Fact]
-        public void DeleteOrderAndExpectAskPriceToBeZero()
+        public async Task DeleteOrderAndExpectAskPriceToBeZero()
         {
             // Arrange
-            IStockExchange stockExchange = new InMemoryStockExchangeRepository(_securitiesProvider);
+            IStockExchange stockExchange = new InMemoryStockExchangeRepository(_securitiesProvider, _ordersHistory);
             string ticker = "A";
             uint amount = 500;
             decimal askPrice = 13.0m;
@@ -27,7 +30,7 @@ namespace SecuritiesExchangeTest
             };
 
             // Act
-            Order placedOrder = stockExchange.PlaceOrder(order);
+            Order placedOrder = await stockExchange.PlaceOrder(order);
             Order deletedOrder = stockExchange.RemoveOrder(placedOrder.Id);
             OrdersPlaced ordersPlaced = stockExchange.GetOrdersPlaced(ticker);
             
@@ -40,10 +43,10 @@ namespace SecuritiesExchangeTest
         }
 
         [Fact]
-        public void ExecuteASuccessfulOrderAtSamePriceAndAddAnotherBuyOrderAtDifferentPriceThenRemoveIt()
+        public async Task ExecuteASuccessfulOrderAtSamePriceAndAddAnotherBuyOrderAtDifferentPriceThenRemoveIt()
         {
             // Arrange
-            IStockExchange stockExchange = new InMemoryStockExchangeRepository(_securitiesProvider);
+            IStockExchange stockExchange = new InMemoryStockExchangeRepository(_securitiesProvider, _ordersHistory);
             string ticker = "A";
             uint amount = 500;
             decimal firstAskPrice = 13.0m;
@@ -72,11 +75,11 @@ namespace SecuritiesExchangeTest
             };
 
             // Act
-            Order placedOrder1 = stockExchange.PlaceOrder(order1);
-            Order placedOrder2 = stockExchange.PlaceOrder(order2);
+            Order placedOrder1 = await stockExchange.PlaceOrder(order1);
+            Order placedOrder2 = await stockExchange.PlaceOrder(order2);
             OrdersPlaced ordersPlaced1 = stockExchange.GetOrdersPlaced(ticker);
 
-            Order placedOrder3 = stockExchange.PlaceOrder(order3);
+            Order placedOrder3 = await stockExchange.PlaceOrder(order3);
             OrdersPlaced ordersPlaced2 = stockExchange.GetOrdersPlaced(ticker);
             
             // Assert

@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using StockExchangeWeb.DTOs;
 using StockExchangeWeb.Models.Orders;
 using StockExchangeWeb.Services;
+using StockExchangeWeb.Services.HistoryService;
 using StockExchangeWeb.Services.TradedEntitiesService;
 using Xunit;
 
@@ -10,15 +11,16 @@ namespace SecuritiesExchangeTest
 {
     public class SecuritiesExchangeBasicOrdersTest
     {
+        private static IOrdersHistory _ordersHistory = new OrdersHistoryRepository();
         private static ISecuritiesProvider _securitiesProvider = new SecuritiesProvider();
         
         #region Normal limit orders
         
         [Fact]
-        public void BasicPlaceASingleOrderTest()
+        public async Task BasicPlaceASingleOrderTest()
         {
             // Arrange
-            IStockExchange stockExchange = new InMemoryStockExchangeRepository(_securitiesProvider);
+            IStockExchange stockExchange = new InMemoryStockExchangeRepository(_securitiesProvider, _ordersHistory);
             string ticker = "A";
             uint amount = 500;
             decimal askPrice = 13.0m;
@@ -31,7 +33,7 @@ namespace SecuritiesExchangeTest
             };
 
             // Act
-            Order placedOrder = stockExchange.PlaceOrder(order);
+            Order placedOrder = await stockExchange.PlaceOrder(order);
             OrdersPlaced ordersPlaced = stockExchange.GetOrdersPlaced(ticker);
 
             // Assert
@@ -54,10 +56,10 @@ namespace SecuritiesExchangeTest
         }
 
         [Fact]
-        public void TwoLimitOrdersSamePriceSameAmountBeingExecutedTest()
+        public async Task TwoLimitOrdersSamePriceSameAmountBeingExecutedTest()
         {
             // Arrange
-            IStockExchange stockExchange = new InMemoryStockExchangeRepository(_securitiesProvider);
+            IStockExchange stockExchange = new InMemoryStockExchangeRepository(_securitiesProvider, _ordersHistory);
             string ticker = "A";
             uint amount = 500;
             decimal askPrice = 13.0m;
@@ -77,8 +79,8 @@ namespace SecuritiesExchangeTest
             };
 
             // Act
-            Order placedBuyOrder = stockExchange.PlaceOrder(buyOrder);
-            Order placedSellOrder = stockExchange.PlaceOrder(sellOrder);
+            Order placedBuyOrder = await stockExchange.PlaceOrder(buyOrder);
+            Order placedSellOrder = await stockExchange.PlaceOrder(sellOrder);
             OrdersPlaced ordersPlaced = stockExchange.GetOrdersPlaced(ticker);
             
             // Assert
@@ -94,10 +96,10 @@ namespace SecuritiesExchangeTest
         }
 
         [Fact]
-        public void TwoLimitOrdersDifferentPricesSameAmountNotExecuted()
+        public async Task TwoLimitOrdersDifferentPricesSameAmountNotExecuted()
         {
             // Arrange
-            IStockExchange stockExchange = new InMemoryStockExchangeRepository(_securitiesProvider);
+            IStockExchange stockExchange = new InMemoryStockExchangeRepository(_securitiesProvider, _ordersHistory);
             string ticker = "A";
             uint amount = 500;
             decimal askBuyPrice = 13.0m;
@@ -119,8 +121,8 @@ namespace SecuritiesExchangeTest
             };
 
             // Act
-            Order placedBuyOrder = stockExchange.PlaceOrder(buyOrder);
-            Order placedSellOrder = stockExchange.PlaceOrder(sellOrder);
+            Order placedBuyOrder = await stockExchange.PlaceOrder(buyOrder);
+            Order placedSellOrder = await stockExchange.PlaceOrder(sellOrder);
             OrdersPlaced ordersPlaced = stockExchange.GetOrdersPlaced(ticker);
             
             // Assert
@@ -139,10 +141,10 @@ namespace SecuritiesExchangeTest
         }
 
         [Fact]
-        public void TwoLimitOrdersSamePriceSameAmountExecutedThenPlaceADifferentOrder()
+        public async Task TwoLimitOrdersSamePriceSameAmountExecutedThenPlaceADifferentOrder()
         {
             // Arrange
-            IStockExchange stockExchange = new InMemoryStockExchangeRepository(_securitiesProvider);
+            IStockExchange stockExchange = new InMemoryStockExchangeRepository(_securitiesProvider, _ordersHistory);
             string ticker = "A";
             uint amount = 500;
             decimal askPrice = 13.0m;
@@ -171,9 +173,9 @@ namespace SecuritiesExchangeTest
             };
 
             // Act
-            Order placedBuyOrder = stockExchange.PlaceOrder(buyOrder);
-            Order placedSellOrder = stockExchange.PlaceOrder(sellOrder);
-            Order placedThridOrder = stockExchange.PlaceOrder(thirdOrder);
+            Order placedBuyOrder = await stockExchange.PlaceOrder(buyOrder);
+            Order placedSellOrder = await stockExchange.PlaceOrder(sellOrder);
+            Order placedThridOrder = await stockExchange.PlaceOrder(thirdOrder);
             OrdersPlaced ordersPlaced = stockExchange.GetOrdersPlaced(ticker);
             
             // Assert
@@ -189,10 +191,10 @@ namespace SecuritiesExchangeTest
         #region Immediate limit orders
 
         [Fact]
-        public void ImmediateOrderShouldNotPersistOnEmptyMarket()
+        public async Task ImmediateOrderShouldNotPersistOnEmptyMarket()
         {
             // Arrange
-            IStockExchange stockExchange = new InMemoryStockExchangeRepository(_securitiesProvider);
+            IStockExchange stockExchange = new InMemoryStockExchangeRepository(_securitiesProvider, _ordersHistory);
             string ticker = "A";
             uint amount = 500;
             decimal askPrice = 13.0m;
@@ -220,7 +222,7 @@ namespace SecuritiesExchangeTest
         public async Task ImmediateOrderShouldExecuteOnMarketWithLiquidity()
         {
             // Arrange
-            IStockExchange stockExchange = new InMemoryStockExchangeRepository(_securitiesProvider);
+            IStockExchange stockExchange = new InMemoryStockExchangeRepository(_securitiesProvider, _ordersHistory);
             string ticker = "A";
             uint amount = 1500;
             decimal askPrice = 13.0m;
