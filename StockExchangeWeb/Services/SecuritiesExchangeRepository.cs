@@ -56,11 +56,7 @@ namespace StockExchangeWeb.Services
             }
             
             ReevaluatePricing(ref order);
-
-            // TODO add market order
-            // TODO add stop order and it's types
             
-            // TODO execute order immediately if a corresponding order exists
             // TODO add order to history of orders
 
             return order;
