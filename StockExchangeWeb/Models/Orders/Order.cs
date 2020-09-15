@@ -1,9 +1,11 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace StockExchangeWeb.Models.Orders
 {
     public class Order
     {
+        [Key]
         public string Id { get; set; } = Guid.NewGuid().ToString();
 
         public OrderType OrderType { get; set; } = OrderType.LIMIT_ORDER;
