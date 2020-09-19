@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using StockExchangeWeb.Models.Orders;
 using StockExchangeWeb.Models.OrderTrace;
 
+[assembly: InternalsVisibleTo("SecuritiesExchangeTest")]
 namespace StockExchangeWeb.Services.OrderTracingService
 {
     public class OrderTraceRepository

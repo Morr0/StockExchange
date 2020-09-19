@@ -3,6 +3,7 @@ using StockExchangeWeb.DTOs;
 using StockExchangeWeb.Models.Orders;
 using StockExchangeWeb.Services;
 using StockExchangeWeb.Services.HistoryService;
+using StockExchangeWeb.Services.OrderTracingService;
 using StockExchangeWeb.Services.TradedEntitiesService;
 using Xunit;
 
@@ -11,13 +12,14 @@ namespace SecuritiesExchangeTest
     public class SecuritiesExchangeMarketOrdersAndLimitOrdersTest
     {
         private static IOrdersHistory _ordersHistory = new OrdersHistoryRepository();
-        private static ISecuritiesProvider _securitiesProvider = new SecuritiesProvider();
-        
+        private static ISecuritiesProvider _securitiesProvider = new SecuritiesProvider();        
+        private static OrderTraceRepository _orderTraceRepository = new OrderTraceRepository();
+
         [Fact]
         public async Task PlaceMarketOrder()
         {
             // Arrange
-            IStockExchange stockExchange = new InMemoryStockExchangeRepository(_securitiesProvider, _ordersHistory);
+            IStockExchange stockExchange = new InMemoryStockExchangeRepository(_securitiesProvider, _ordersHistory, _orderTraceRepository);
             string ticker = "A";
             uint amount = 500;
             decimal askPrice = 13.0m;
@@ -42,7 +44,7 @@ namespace SecuritiesExchangeTest
         public async Task PlaceLimitOrderThenMarketOrderShouldExecute()
         {
             // Arrange
-            IStockExchange stockExchange = new InMemoryStockExchangeRepository(_securitiesProvider, _ordersHistory);
+            IStockExchange stockExchange = new InMemoryStockExchangeRepository(_securitiesProvider, _ordersHistory, _orderTraceRepository);
             string ticker = "A";
             uint amount = 500;
             decimal askPrice = 13.0m;

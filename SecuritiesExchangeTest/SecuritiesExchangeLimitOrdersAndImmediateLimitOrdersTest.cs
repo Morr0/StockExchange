@@ -4,6 +4,7 @@ using StockExchangeWeb.DTOs;
 using StockExchangeWeb.Models.Orders;
 using StockExchangeWeb.Services;
 using StockExchangeWeb.Services.HistoryService;
+using StockExchangeWeb.Services.OrderTracingService;
 using StockExchangeWeb.Services.TradedEntitiesService;
 using Xunit;
 
@@ -13,14 +14,15 @@ namespace SecuritiesExchangeTest
     {
         private static IOrdersHistory _ordersHistory = new OrdersHistoryRepository();
         private static ISecuritiesProvider _securitiesProvider = new SecuritiesProvider();
-        
+        private static OrderTraceRepository _orderTraceRepository = new OrderTraceRepository();
+
         #region Normal limit orders
         
         [Fact]
         public async Task BasicPlaceASingleOrderTest()
         {
             // Arrange
-            IStockExchange stockExchange = new InMemoryStockExchangeRepository(_securitiesProvider, _ordersHistory);
+            IStockExchange stockExchange = new InMemoryStockExchangeRepository(_securitiesProvider, _ordersHistory, _orderTraceRepository);
             string ticker = "A";
             uint amount = 500;
             decimal askPrice = 13.0m;
@@ -59,7 +61,7 @@ namespace SecuritiesExchangeTest
         public async Task TwoLimitOrdersSamePriceSameAmountBeingExecutedTest()
         {
             // Arrange
-            IStockExchange stockExchange = new InMemoryStockExchangeRepository(_securitiesProvider, _ordersHistory);
+            IStockExchange stockExchange = new InMemoryStockExchangeRepository(_securitiesProvider, _ordersHistory, _orderTraceRepository);
             string ticker = "A";
             uint amount = 500;
             decimal askPrice = 13.0m;
@@ -99,7 +101,7 @@ namespace SecuritiesExchangeTest
         public async Task TwoLimitOrdersDifferentPricesSameAmountNotExecuted()
         {
             // Arrange
-            IStockExchange stockExchange = new InMemoryStockExchangeRepository(_securitiesProvider, _ordersHistory);
+            IStockExchange stockExchange = new InMemoryStockExchangeRepository(_securitiesProvider, _ordersHistory, _orderTraceRepository);
             string ticker = "A";
             uint amount = 500;
             decimal askBuyPrice = 13.0m;
@@ -144,7 +146,7 @@ namespace SecuritiesExchangeTest
         public async Task TwoLimitOrdersSamePriceSameAmountExecutedThenPlaceADifferentOrder()
         {
             // Arrange
-            IStockExchange stockExchange = new InMemoryStockExchangeRepository(_securitiesProvider, _ordersHistory);
+            IStockExchange stockExchange = new InMemoryStockExchangeRepository(_securitiesProvider, _ordersHistory, _orderTraceRepository);
             string ticker = "A";
             uint amount = 500;
             decimal askPrice = 13.0m;
@@ -194,7 +196,7 @@ namespace SecuritiesExchangeTest
         public async Task ImmediateOrderShouldNotPersistOnEmptyMarket()
         {
             // Arrange
-            IStockExchange stockExchange = new InMemoryStockExchangeRepository(_securitiesProvider, _ordersHistory);
+            IStockExchange stockExchange = new InMemoryStockExchangeRepository(_securitiesProvider, _ordersHistory, _orderTraceRepository);
             string ticker = "A";
             uint amount = 500;
             decimal askPrice = 13.0m;
@@ -222,7 +224,7 @@ namespace SecuritiesExchangeTest
         public async Task ImmediateOrderShouldExecuteOnMarketWithLiquidity()
         {
             // Arrange
-            IStockExchange stockExchange = new InMemoryStockExchangeRepository(_securitiesProvider, _ordersHistory);
+            IStockExchange stockExchange = new InMemoryStockExchangeRepository(_securitiesProvider, _ordersHistory, _orderTraceRepository);
             string ticker = "A";
             uint amount = 1500;
             decimal askPrice = 13.0m;
