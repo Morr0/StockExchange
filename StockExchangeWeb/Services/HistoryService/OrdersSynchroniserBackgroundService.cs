@@ -107,8 +107,8 @@ namespace StockExchangeWeb.Services.HistoryService
                 {
                     TrackedOrder order = ordersWorked[pulledOrder.Id];
                     order.ToBeUpdated = true;
-                    Order updatedPulledOrder = pulledOrder.RealizeChanges(order.Order);
-                    toUpdateOrders.Add(updatedPulledOrder);
+                    pulledOrder.RealizeChanges(order.Order);
+                    toUpdateOrders.Add(pulledOrder);
                 }
                 else
                 {

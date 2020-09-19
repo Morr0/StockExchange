@@ -5,7 +5,7 @@ namespace StockExchangeWeb.Models.Orders
 {
     public static class OrderExtensions
     {
-        public static Order RealizeChanges(this Order oldOrder, Order currentOrder)
+        public static void RealizeChanges(this Order oldOrder, Order currentOrder)
         {
             Type currentOrderType = currentOrder.GetType();
             PropertyInfo[] props = oldOrder.GetType().GetProperties();
@@ -14,8 +14,6 @@ namespace StockExchangeWeb.Models.Orders
             {
                 prop.SetValue(oldOrder, currentOrderType.GetProperty(nameof(prop.Name)).GetValue(currentOrder));
             }
-
-            return oldOrder;
         }
     }
 }
