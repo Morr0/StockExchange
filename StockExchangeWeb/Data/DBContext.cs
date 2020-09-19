@@ -16,13 +16,24 @@ namespace StockExchangeWeb.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Order model, indexes excluding primary key
+            // Order model
             modelBuilder.Entity<Order>()
                 .HasIndex(model => model.OrderStatus);
+
+            modelBuilder.Entity<Order>()
+                .Property(model => model.OrderStatus)
+                .HasConversion<int>();
+            modelBuilder.Entity<Order>()
+                .Property(model => model.OrderType)
+                .HasConversion<int>();
             
             // Order trace model
+            // modelBuilder.Entity<OrderTrace>()
+            //     .HasIndex(model => model.OrderId);
+            
             modelBuilder.Entity<OrderTrace>()
-                .HasIndex(model => model.OrderId);
+                .Property(model => model.OrderStatus)
+                .HasConversion<int>();
 
         }
     }
