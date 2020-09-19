@@ -9,6 +9,8 @@ namespace StockExchangeWeb.Models.OrderTrace
     {
         [Key]
         public string TraceId { get; set; } = Guid.NewGuid().ToString();
+
+        public string Timestamp { get; set; } = DateTime.UtcNow.ToString();
         
         [ForeignKey(nameof(Orders.Order))]
         public string OrderId { get; set; }
