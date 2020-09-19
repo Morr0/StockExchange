@@ -87,7 +87,8 @@ namespace StockExchangeWeb.Services.HistoryService
 
         private async Task TransactUpdatedExistingOrders(List<Order> toUpdateOrders)
         {
-            await _dbContext.Order.AddRangeAsync(toUpdateOrders);
+            _dbContext.Order.UpdateRange(toUpdateOrders);
+            // await _dbContext.Order.AddRangeAsync(toUpdateOrders);
         }
 
         private (List<Order>, List<Order>) GetToUpdateOrders(Dictionary<string, TrackedOrder> ordersWorked,
@@ -96,6 +97,9 @@ namespace StockExchangeWeb.Services.HistoryService
             List<Order> toUpdateOrders = new List<Order>();
             List<Order> newOrders = new List<Order>();
 
+            if (pulledOrders.Count > 0)
+                Console.WriteLine("Some pulled orders");
+            
             // Add updated orders
             foreach (var pulledOrder in pulledOrders)
             {
@@ -103,7 +107,12 @@ namespace StockExchangeWeb.Services.HistoryService
                 {
                     TrackedOrder order = ordersWorked[pulledOrder.Id];
                     order.ToBeUpdated = true;
-                    toUpdateOrders.Add(order.Order);
+                    Order updatedPulledOrder = pulledOrder.RealizeChanges(order.Order);
+                    toUpdateOrders.Add(updatedPulledOrder);
+                }
+                else
+                {
+                    Console.WriteLine("Null");
                 }
             }
 
@@ -119,7 +128,7 @@ namespace StockExchangeWeb.Services.HistoryService
 
         private async Task<List<Order>> PullExistingArchivedOrders(Dictionary<string, TrackedOrder> ordersWorked)
         {
-            var queryable = _dbContext.Order.AsNoTracking();
+            var queryable = _dbContext.Order.AsTracking();
             foreach (var orderPair in ordersWorked)
             {
                 string id = orderPair.Key;
