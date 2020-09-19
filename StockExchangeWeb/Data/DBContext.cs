@@ -7,10 +7,9 @@ namespace StockExchangeWeb.Data
     {
         public DbSet<Order> Order { get; set; }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        public DBContext(DbContextOptions opts) : base(opts)
         {
-            // TODO Use do not hardcode
-            optionsBuilder.UseNpgsql("Host=localhost;Database=SecuritiesExchange;Username=postgres;Password=root");
+            
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

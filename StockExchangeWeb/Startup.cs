@@ -12,6 +12,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using StockExchangeWeb.Data;
 using StockExchangeWeb.Services;
 using StockExchangeWeb.Services.HistoryService;
 using StockExchangeWeb.Services.TradedEntitiesService;
@@ -30,7 +31,7 @@ namespace StockExchangeWeb
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<DbContext>(opts =>
+            services.AddDbContextPool<DBContext>(opts =>
             {
                 // TODO Use do not hardcode
                 opts.UseNpgsql("Host=localhost;Database=SecuritiesExchange;Username=postgres;Password=root");
