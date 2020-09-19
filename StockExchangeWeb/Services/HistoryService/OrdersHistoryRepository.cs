@@ -8,8 +8,10 @@ namespace StockExchangeWeb.Services.HistoryService
 {
     public class OrdersHistoryRepository : IOrdersHistory
     {
+        // This is used by the test classes as well as the synchronisation service
+        // Will empty once synchronised upwards
         internal Dictionary<string, Order> _archivedOrders = new Dictionary<string, Order>();
-        
+
         public async Task ArchiveOrder(Dictionary<string, Order> orders)
         {
             foreach (var ordersPair in orders)
