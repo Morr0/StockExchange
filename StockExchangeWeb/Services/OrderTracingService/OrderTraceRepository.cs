@@ -8,7 +8,7 @@ namespace StockExchangeWeb.Services.OrderTracingService
     {
         internal LinkedList<OrderTrace> _orderTraces = new LinkedList<OrderTrace>();
         
-        public void Trace(ref Order order)
+        public void Trace(Order order)
         {
             _orderTraces.AddLast(new OrderTrace
             {
@@ -16,6 +16,17 @@ namespace StockExchangeWeb.Services.OrderTracingService
                 Order = order,
                 OrderStatus = order.OrderStatus
             });
+        }
+
+        public void Trace(Dictionary<string, Order> orders)
+        {
+            var enumerator = orders.GetEnumerator();
+            while (enumerator.MoveNext())
+            {
+                var pair = enumerator.Current;
+                Order order = pair.Value;
+                Trace(order);
+            }
         }
     }
 }

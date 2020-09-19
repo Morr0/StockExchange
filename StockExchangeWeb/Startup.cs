@@ -15,6 +15,7 @@ using Microsoft.Extensions.Logging;
 using StockExchangeWeb.Data;
 using StockExchangeWeb.Services;
 using StockExchangeWeb.Services.HistoryService;
+using StockExchangeWeb.Services.OrderTracingService;
 using StockExchangeWeb.Services.TradedEntitiesService;
 
 namespace StockExchangeWeb
@@ -39,6 +40,9 @@ namespace StockExchangeWeb
             
             services.AddSingleton<IOrdersHistory, OrdersHistoryRepository>();
             services.AddHostedService<OrdersSynchroniserBackgroundService>();
+
+            services.AddSingleton<OrderTraceRepository>();
+            services.AddHostedService<OrderTracingDBPushBackgroundService>();
             
             services.AddSingleton<ISecuritiesProvider, SecuritiesProvider>();
             

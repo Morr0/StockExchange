@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using StockExchangeWeb.DTOs;
 using StockExchangeWeb.Models.Orders;
 using StockExchangeWeb.Services.HistoryService;
+using StockExchangeWeb.Services.OrderTracingService;
 using StockExchangeWeb.Services.TradedEntitiesService;
 
 namespace StockExchangeWeb.Services
@@ -12,6 +14,7 @@ namespace StockExchangeWeb.Services
     {
         private ISecuritiesProvider _securitiesProvider;
         private IOrdersHistory _ordersHistory;
+        private OrderTraceRepository _traceRepository;
 
         private Dictionary<string, Order> _ordersById;
         
@@ -23,10 +26,12 @@ namespace StockExchangeWeb.Services
         private decimal _lastClosestBid = 0;
         private decimal _lastClosestBidAskSpread;
 
-        public InMemoryStockExchangeRepository(ISecuritiesProvider securitiesProvider, IOrdersHistory ordersHistory)
+        public InMemoryStockExchangeRepository(ISecuritiesProvider securitiesProvider, IOrdersHistory ordersHistory
+            , OrderTraceRepository traceRepository)
         {
             _securitiesProvider = securitiesProvider;
             _ordersHistory = ordersHistory;
+            _traceRepository = traceRepository;
             
             _ordersById = new Dictionary<string, Order>();
             _orderBooks = new Dictionary<string, OrderBookPerPrice>
@@ -42,6 +47,8 @@ namespace StockExchangeWeb.Services
             
             // Place order
             _ordersById.Add(order.Id, order);
+            
+            _traceRepository.Trace(order);
             
             Dictionary<string, Order> ordersInvolved = null;
             switch (order.OrderType)
@@ -61,7 +68,9 @@ namespace StockExchangeWeb.Services
             
             ReevaluatePricing(ref order);
             
-            await _ordersHistory.ArchiveOrder(ordersInvolved);
+            // await _ordersHistory.ArchiveOrder(ordersInvolved);
+            if (ordersInvolved.Count > 1)
+                _traceRepository.Trace(ordersInvolved);
 
             return order;
         }

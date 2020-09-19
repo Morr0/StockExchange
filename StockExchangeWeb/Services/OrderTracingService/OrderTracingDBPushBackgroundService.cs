@@ -28,6 +28,7 @@ namespace StockExchangeWeb.Services.OrderTracingService
                     {
                         DBContext dbContext = scope.ServiceProvider.GetService<DBContext>();
                         
+                        Console.WriteLine("Trace service");
                         PushTraces(dbContext);
                         // TODO handle errors and do retry
                     }
