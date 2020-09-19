@@ -37,7 +37,7 @@ namespace SecuritiesExchangeTest
             OrdersPlaced ordersPlaced = stockExchange.GetOrdersPlaced(ticker);
             
             // Assert
-            Assert.Equal(OrderStatus.DELETED, deletedOrder.OrderStatus);
+            Assert.Equal(OrderStatus.Deleted, deletedOrder.OrderStatus);
             Assert.False(string.IsNullOrEmpty(deletedOrder.OrderDeletionTime));
             
             Assert.Equal(0u, ordersPlaced.BuyOrders[askPrice.ToString()]);

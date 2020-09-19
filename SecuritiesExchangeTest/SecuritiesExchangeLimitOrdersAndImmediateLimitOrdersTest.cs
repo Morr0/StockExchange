@@ -42,9 +42,9 @@ namespace SecuritiesExchangeTest
             Assert.Equal(ticker, placedOrder.Ticker);
             Assert.Equal(amount, placedOrder.Amount);
             Assert.Equal(askPrice, order.AskPrice);
-            Assert.Equal(OrderStatus.IN_MARKET, placedOrder.OrderStatus);
+            Assert.Equal(OrderStatus.InMarket, placedOrder.OrderStatus);
             Assert.True(placedOrder.BuyOrder);
-            Assert.Equal(OrderType.LIMIT_ORDER, placedOrder.OrderType);
+            Assert.Equal(OrderType.LimitOrder, placedOrder.OrderType);
 
             Assert.True(ordersPlaced.BuyOrders.Count == 1);
             Assert.True(ordersPlaced.SellOrders.Count == 1);
@@ -86,8 +86,8 @@ namespace SecuritiesExchangeTest
             OrdersPlaced ordersPlaced = stockExchange.GetOrdersPlaced(ticker);
             
             // Assert
-            Assert.True(placedBuyOrder.OrderStatus == OrderStatus.EXECUTED);
-            Assert.True(placedSellOrder.OrderStatus == OrderStatus.EXECUTED);
+            Assert.True(placedBuyOrder.OrderStatus == OrderStatus.Executed);
+            Assert.True(placedSellOrder.OrderStatus == OrderStatus.Executed);
             
             Assert.Equal(0u, ordersPlaced.BuyOrders[askPrice.ToString()]);
             Assert.Equal(0u, ordersPlaced.SellOrders[askPrice.ToString()]);
@@ -128,8 +128,8 @@ namespace SecuritiesExchangeTest
             OrdersPlaced ordersPlaced = stockExchange.GetOrdersPlaced(ticker);
             
             // Assert
-            Assert.Equal(OrderStatus.IN_MARKET, placedBuyOrder.OrderStatus);
-            Assert.Equal(OrderStatus.IN_MARKET, placedSellOrder.OrderStatus);
+            Assert.Equal(OrderStatus.InMarket, placedBuyOrder.OrderStatus);
+            Assert.Equal(OrderStatus.InMarket, placedSellOrder.OrderStatus);
             
             Assert.Equal(amount, ordersPlaced.BuyOrders[askBuyPrice.ToString()]);
             Assert.Equal(0u, ordersPlaced.BuyOrders[askSellPrice.ToString()]);
@@ -206,7 +206,7 @@ namespace SecuritiesExchangeTest
                 Amount = amount,
                 AskPrice = askPrice,
                 BuyOrder = true,
-                OrderType = OrderType.LIMIT_ORDER_IMMEDIATE
+                OrderType = OrderType.LimitOrderImmediate
             };
 
             // Act
@@ -214,7 +214,7 @@ namespace SecuritiesExchangeTest
             OrdersPlaced ordersPlaced = stockExchange.GetOrdersPlaced(ticker);
 
             // Assert
-            Assert.True(placedOrder.OrderStatus == OrderStatus.NO_MATCH);
+            Assert.True(placedOrder.OrderStatus == OrderStatus.NoMatch);
             
             Assert.Equal(0m, ordersPlaced.ClosestAskPrice);
             Assert.Equal(0m, ordersPlaced.ClosestBidPrice);
@@ -241,7 +241,7 @@ namespace SecuritiesExchangeTest
                 Amount = amount,
                 AskPrice = askPrice,
                 BuyOrder = false,
-                OrderType = OrderType.LIMIT_ORDER_IMMEDIATE
+                OrderType = OrderType.LimitOrderImmediate
             };
 
             // Act
@@ -250,7 +250,7 @@ namespace SecuritiesExchangeTest
             OrdersPlaced ordersPlaced = stockExchange.GetOrdersPlaced(ticker);
 
             // Assert
-            Assert.Equal(OrderStatus.EXECUTED, placedOrder2.OrderStatus);
+            Assert.Equal(OrderStatus.Executed, placedOrder2.OrderStatus);
             
             Assert.Equal(0u, ordersPlaced.BuyOrders[askPrice.ToString()]);
             // TODO there is a bug below, most likely due to the language, remedy it

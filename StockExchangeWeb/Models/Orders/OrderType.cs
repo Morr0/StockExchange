@@ -2,11 +2,11 @@
 {
     public enum OrderType : byte
     {
-        MARKET_ORDER,
-        LIMIT_ORDER,
+        MarketOrder,
+        LimitOrder,
         /// <summary>
         /// If cannot execute now then get rid of order. Will not affect market bid/ask prices unless executed.
         /// </summary>
-        LIMIT_ORDER_IMMEDIATE
+        LimitOrderImmediate
     }
 }

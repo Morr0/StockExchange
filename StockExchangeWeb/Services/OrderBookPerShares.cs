@@ -67,8 +67,8 @@ namespace StockExchangeWeb.Services
 
             if (!OppositeOrderExists(ref order))
             {
-                if (order.OrderType == OrderType.LIMIT_ORDER_IMMEDIATE)
-                    order.OrderStatus = OrderStatus.NO_MATCH;
+                if (order.OrderType == OrderType.LimitOrderImmediate)
+                    order.OrderStatus = OrderStatus.NoMatch;
 
                 return ordersInvolved;
             }
@@ -96,7 +96,7 @@ namespace StockExchangeWeb.Services
             // While loop to skip and dequeue deleted orders
             while (oppositeQueue.Count > 0)
             {
-                if (oppositeOrder.OrderStatus != OrderStatus.IN_MARKET)
+                if (oppositeOrder.OrderStatus != OrderStatus.InMarket)
                     oppositeOrder = oppositeQueue.Dequeue();
             }
             
@@ -108,7 +108,7 @@ namespace StockExchangeWeb.Services
             SharesToBuy -= order.Amount;
             SharesToSell -= order.Amount;
 
-            order.OrderStatus = oppositeOrder.OrderStatus = OrderStatus.EXECUTED;
+            order.OrderStatus = oppositeOrder.OrderStatus = OrderStatus.Executed;
             order.OrderExecutionTime = oppositeOrder.OrderExecutionTime = DateTime.UtcNow.ToString();
 
             return oppositeOrder;

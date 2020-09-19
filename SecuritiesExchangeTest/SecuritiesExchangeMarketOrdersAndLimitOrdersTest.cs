@@ -29,7 +29,7 @@ namespace SecuritiesExchangeTest
                 Amount = amount,
                 AskPrice = askPrice,
                 BuyOrder = true,
-                OrderType = OrderType.MARKET_ORDER
+                OrderType = OrderType.MarketOrder
             };
 
             // Act
@@ -37,7 +37,7 @@ namespace SecuritiesExchangeTest
             OrdersPlaced ordersPlaced = stockExchange.GetOrdersPlaced(ticker);
 
             // Assert
-            Assert.Equal(OrderType.MARKET_ORDER, placedOrder.OrderType);
+            Assert.Equal(OrderType.MarketOrder, placedOrder.OrderType);
         }
 
         [Fact]
@@ -61,7 +61,7 @@ namespace SecuritiesExchangeTest
                 Amount = amount,
                 BuyOrder = true,
                 AskPrice = 1,
-                OrderType = OrderType.MARKET_ORDER
+                OrderType = OrderType.MarketOrder
             };
 
             // Act
@@ -70,8 +70,8 @@ namespace SecuritiesExchangeTest
             OrdersPlaced ordersPlaced = stockExchange.GetOrdersPlaced(ticker);
             
             // Assert
-            Assert.Equal(OrderStatus.EXECUTED, placedLimitOrder.OrderStatus);
-            Assert.Equal(OrderStatus.EXECUTED, placedMarketOrder.OrderStatus);
+            Assert.Equal(OrderStatus.Executed, placedLimitOrder.OrderStatus);
+            Assert.Equal(OrderStatus.Executed, placedMarketOrder.OrderStatus);
             
             Assert.Equal(0u, ordersPlaced.BuyOrders[askPrice.ToString()]);
             Assert.Equal(0u, ordersPlaced.SellOrders[askPrice.ToString()]);

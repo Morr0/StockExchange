@@ -2,12 +2,12 @@
 {
     public enum OrderStatus : byte
     {
-        IN_MARKET,
-        EXECUTED,
-        DELETED,
+        InMarket,
+        Executed,
+        Deleted,
         /// <summary>
         /// When using an immediate limit order and no match exists
         /// </summary>
-        NO_MATCH
+        NoMatch
     }
 }

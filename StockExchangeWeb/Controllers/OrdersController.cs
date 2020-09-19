@@ -59,7 +59,7 @@ namespace StockExchangeWeb.Controllers
             Order order = _stockExchange.RemoveOrder(deletionBody.OrderId);
             if (order == null)
                 return NotFound();
-            if (order.OrderStatus == OrderStatus.EXECUTED)
+            if (order.OrderStatus == OrderStatus.Executed)
                 return BadRequest(order);
 
             return Ok(order);

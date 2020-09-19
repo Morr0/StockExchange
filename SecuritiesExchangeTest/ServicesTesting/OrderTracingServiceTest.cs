@@ -50,8 +50,8 @@ namespace SecuritiesExchangeTest.ServicesTesting
             
             // Assert II
             Assert.True(_orderTraceRepository._orderTraces.Count == 4);
-            Assert.Equal(OrderStatus.EXECUTED, _orderTraceRepository._orderTraces.Last.Previous.Value.OrderStatus);
-            Assert.Equal(OrderStatus.EXECUTED, _orderTraceRepository._orderTraces.Last.Value.OrderStatus);
+            Assert.Equal(OrderStatus.Executed, _orderTraceRepository._orderTraces.Last.Previous.Value.OrderStatus);
+            Assert.Equal(OrderStatus.Executed, _orderTraceRepository._orderTraces.Last.Value.OrderStatus);
         }
     }
 }

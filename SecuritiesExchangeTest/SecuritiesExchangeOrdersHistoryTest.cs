@@ -47,15 +47,15 @@ namespace SecuritiesExchangeTest
             
             // Assert I
             Assert.True(_ordersHistory._archivedOrders.ContainsKey(sellOrderId));
-            Assert.Equal(OrderStatus.IN_MARKET, _ordersHistory._archivedOrders[sellOrderId].OrderStatus);
+            Assert.Equal(OrderStatus.InMarket, _ordersHistory._archivedOrders[sellOrderId].OrderStatus);
             
             // Act II
             await stockExchange.PlaceOrder(buyOrder);
             
             // Assert II
             Assert.True(_ordersHistory._archivedOrders.ContainsKey(buyOrderId));
-            Assert.Equal(OrderStatus.EXECUTED, _ordersHistory._archivedOrders[sellOrderId].OrderStatus);
-            Assert.Equal(OrderStatus.EXECUTED, _ordersHistory._archivedOrders[buyOrderId].OrderStatus);
+            Assert.Equal(OrderStatus.Executed, _ordersHistory._archivedOrders[sellOrderId].OrderStatus);
+            Assert.Equal(OrderStatus.Executed, _ordersHistory._archivedOrders[buyOrderId].OrderStatus);
 
         }
     }

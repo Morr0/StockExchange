@@ -16,7 +16,7 @@ namespace StockExchangeWeb.Utilities
 
         public void Enqueue(ref Order order)
         {
-            if (order.OrderType == OrderType.MARKET_ORDER)
+            if (order.OrderType == OrderType.MarketOrder)
                 _marketOrders.Enqueue(order);
             else
                 _remainingOrders.Enqueue(order);

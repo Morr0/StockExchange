@@ -8,9 +8,9 @@ namespace StockExchangeWeb.Models.Orders
         [Key]
         public string Id { get; set; } = Guid.NewGuid().ToString();
 
-        public OrderType OrderType { get; set; } = OrderType.LIMIT_ORDER;
+        public OrderType OrderType { get; set; } = OrderType.LimitOrder;
 
-        public OrderStatus OrderStatus { get; set; } = OrderStatus.IN_MARKET;
+        public OrderStatus OrderStatus { get; set; } = OrderStatus.InMarket;
         
         public bool BuyOrder { get; set; }
         

@@ -10,7 +10,7 @@ namespace StockExchangeWeb.DTOs
         private decimal _askPrice;
         
         [NotNull]
-        public OrderType OrderType { get; set; } = OrderType.LIMIT_ORDER;
+        public OrderType OrderType { get; set; } = OrderType.LimitOrder;
         [Required]
         [NotNull]
         public bool BuyOrder { get; set; }

@@ -53,15 +53,15 @@ namespace StockExchangeWeb.Services
             Dictionary<string, Order> ordersInvolved = null;
             switch (order.OrderType)
             {
-                case OrderType.MARKET_ORDER:
+                case OrderType.MarketOrder:
                     // TODO know the mechanics of which price makes the market
                     decimal price = order.BuyOrder ? _lastClosestBid : _lastClosestAsk;
                     ordersInvolved = _orderBooks[tkr][price].PlaceAndTryExecute(order);
                     break;
-                case OrderType.LIMIT_ORDER:
+                case OrderType.LimitOrder:
                     ordersInvolved = _orderBooks[tkr][askPrice].PlaceAndTryExecute(order);
                     break;
-                case OrderType.LIMIT_ORDER_IMMEDIATE:
+                case OrderType.LimitOrderImmediate:
                     ordersInvolved = _orderBooks[tkr][askPrice].TryExecute(order);
                     break;
             }
@@ -78,17 +78,17 @@ namespace StockExchangeWeb.Services
         // Re-evaluates the bid/ask prices to the closest differences
         private void ReevaluatePricing(ref Order order)
         {
-            if (order.OrderStatus == OrderStatus.NO_MATCH)
+            if (order.OrderStatus == OrderStatus.NoMatch)
                 return;
             
-            decimal price = order.OrderStatus == OrderStatus.EXECUTED ? order.ExecutedPrice : order.AskPrice;
+            decimal price = order.OrderStatus == OrderStatus.Executed ? order.ExecutedPrice : order.AskPrice;
             
             if (order.BuyOrder)
                 _lastClosestAsk = price;
             else
                 _lastClosestBid = price;
 
-            if (order.OrderStatus == OrderStatus.EXECUTED)
+            if (order.OrderStatus == OrderStatus.Executed)
                 _lastExecutedPrice = order.ExecutedPrice;
             
             _lastClosestBidAskSpread = Math.Abs(_lastClosestBid - _lastClosestAsk);
@@ -101,13 +101,13 @@ namespace StockExchangeWeb.Services
                 return null;
 
             Order order = _ordersById[orderId];
-            if (order.OrderStatus == OrderStatus.DELETED)
+            if (order.OrderStatus == OrderStatus.Deleted)
                 return null;
             
-            if (order.OrderStatus != OrderStatus.IN_MARKET)
+            if (order.OrderStatus != OrderStatus.InMarket)
                 return order;
 
-            order.OrderStatus = OrderStatus.DELETED;
+            order.OrderStatus = OrderStatus.Deleted;
             order.OrderDeletionTime = DateTime.UtcNow.ToString();
             
             // Edit order shares metadata from order book based on order type
