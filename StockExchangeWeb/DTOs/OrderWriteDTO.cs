@@ -11,6 +11,10 @@ namespace StockExchangeWeb.DTOs
         
         [NotNull]
         public OrderType OrderType { get; set; } = OrderType.LimitOrder;
+
+        [NotNull] 
+        public OrderTimeInForce OrderTimeInForce { get; set; } = OrderTimeInForce.GoodTillExecution;
+        
         [Required]
         [NotNull]
         public bool BuyOrder { get; set; }

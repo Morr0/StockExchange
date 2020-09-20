@@ -10,6 +10,8 @@ namespace StockExchangeWeb.Models.Orders
 
         public OrderType OrderType { get; set; } = OrderType.LimitOrder;
 
+        public OrderTimeInForce OrderTimeInForce { get; set; } = OrderTimeInForce.GoodTillExecution;
+
         public OrderStatus OrderStatus { get; set; } = OrderStatus.InMarket;
         
         public bool BuyOrder { get; set; }
