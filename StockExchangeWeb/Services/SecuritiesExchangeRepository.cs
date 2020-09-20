@@ -37,10 +37,17 @@ namespace StockExchangeWeb.Services
             _marketTimes = marketTimes;
             
             _ordersById = new Dictionary<string, Order>();
-            _orderBooks = new Dictionary<string, OrderBookPerPrice>
+            
+            InitOrderBooks();
+        }
+
+        private void InitOrderBooks()
+        {
+            _orderBooks = new Dictionary<string, OrderBookPerPrice>();
+            foreach (var securityPair in _securitiesProvider.Securities)
             {
-                {"A", new OrderBookPerPrice()}
-            };
+                _orderBooks.Add(securityPair.Key, new OrderBookPerPrice());
+            }
         }
         
         public async Task<Order> PlaceOrder(Order order)

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using StockExchangeWeb.Models;
 using StockExchangeWeb.Models.Orders;
 using StockExchangeWeb.Models.OrderTrace;
 
@@ -11,6 +12,7 @@ namespace StockExchangeWeb.Data
             
         }
         
+        public DbSet<TradableSecurity> Security { get; set; }
         public DbSet<Order> Order { get; set; }
         public DbSet<OrderTrace> OrderTrace { get; set; }
 
