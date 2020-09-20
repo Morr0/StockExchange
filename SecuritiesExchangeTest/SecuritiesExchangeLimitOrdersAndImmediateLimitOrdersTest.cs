@@ -266,5 +266,52 @@ namespace SecuritiesExchangeTest
         }
         
         #endregion
+        
+        #region Ordering in closed market
+
+        private sealed class MarketOpeningTimesTestingRepository : IMarketOpeningTimesService
+        {
+            public bool IsMarketOpen(string ticker)
+            {
+                return false;
+            }
+        }
+
+        [Fact]
+        public async Task OrderShouldNotExecuteInAClosedMarket()
+        {
+            // Arrange
+            MarketOpeningTimesTestingRepository marketTimes = new MarketOpeningTimesTestingRepository();
+            IStockExchange stockExchange = new InMemoryStockExchangeRepository(_securitiesProvider, _ordersHistory
+                , _orderTraceRepository, marketTimes);
+            string ticker = "A";
+            uint amount = 500;
+            decimal askPrice = 13.0m;
+            Order buyOrder = new Order
+            {
+                Ticker = ticker,
+                Amount = amount,
+                AskPrice = askPrice,
+                BuyOrder = true,
+            };
+            Order sellOrder = new Order
+            {
+                Ticker = ticker,
+                Amount = amount,
+                AskPrice = askPrice,
+                BuyOrder = false,
+            };
+
+            // Act
+            Order placedBuyOrder1 = await stockExchange.PlaceOrder(buyOrder);
+            Order placedSellOrder2 = await stockExchange.PlaceOrder(sellOrder);
+            OrdersPlaced ordersPlaced = stockExchange.GetOrdersPlaced(ticker);
+            
+            // Assert
+            Assert.Equal(amount, ordersPlaced.BuyOrders[askPrice.ToString()]);
+            Assert.Equal(amount, ordersPlaced.SellOrders[askPrice.ToString()]);
+        }
+        
+        #endregion
     }
 }

@@ -2,7 +2,7 @@
 
 namespace StockExchangeWeb.Services.MarketTimesService
 {
-    public class MarketOpeningTimesRepository
+    public class MarketOpeningTimesRepository : IMarketOpeningTimesService
     {
         public MarketOpeningTimesRepository()
         {

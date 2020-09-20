@@ -16,7 +16,7 @@ namespace StockExchangeWeb.Services
         private ISecuritiesProvider _securitiesProvider;
         private IOrdersHistory _ordersHistory;
         private OrderTraceRepository _traceRepository;
-        private MarketOpeningTimesRepository _marketTimes;
+        private IMarketOpeningTimesService _marketTimes;
 
         private Dictionary<string, Order> _ordersById;
         
@@ -29,7 +29,7 @@ namespace StockExchangeWeb.Services
         private decimal _lastClosestBidAskSpread;
 
         public InMemoryStockExchangeRepository(ISecuritiesProvider securitiesProvider, IOrdersHistory ordersHistory
-            , OrderTraceRepository traceRepository, MarketOpeningTimesRepository marketTimes)
+            , OrderTraceRepository traceRepository, IMarketOpeningTimesService marketTimes)
         {
             _securitiesProvider = securitiesProvider;
             _ordersHistory = ordersHistory;
@@ -54,29 +54,21 @@ namespace StockExchangeWeb.Services
             // Trace
             _traceRepository.Trace(order);
 
-            if (!_marketTimes.IsMarketOpen(order.Ticker))
-            {
-                // Place order in history
-                await _ordersHistory.ArchiveOrder(new Dictionary<string, Order>
-                {
-                    {order.Id, order}
-                });
-                
-                return order;
-            }
-            
+            bool marketOpen = _marketTimes.IsMarketOpen(order.Ticker);
+
             Dictionary<string, Order> ordersInvolved = null;
             if (order.LimitOrder)
             {
                 if (order.OrderTimeInForce == OrderTimeInForce.GoodTillExecution)
-                    ordersInvolved = _orderBooks[tkr][askPrice].PlaceAndTryExecute(order);
+                    ordersInvolved = _orderBooks[tkr][askPrice].PlaceAndTryExecute(marketOpen, order);
                 else if (order.OrderTimeInForce == OrderTimeInForce.GoodOrKill)
-                    ordersInvolved = _orderBooks[tkr][askPrice].TryExecute(order);
+                    ordersInvolved = _orderBooks[tkr][askPrice].TryExecute(marketOpen, order);
+
             }
             else
             {
                 decimal price = order.BuyOrder ? _lastClosestBid : _lastClosestAsk;
-                ordersInvolved = _orderBooks[tkr][price].PlaceAndTryExecute(order);
+                ordersInvolved = _orderBooks[tkr][price].PlaceAndTryExecute(marketOpen, order);
             }
             
             ReevaluatePricing(ref order);

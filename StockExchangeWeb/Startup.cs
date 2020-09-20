@@ -39,7 +39,7 @@ namespace StockExchangeWeb
                 opts.UseNpgsql("Host=localhost;Database=SecuritiesExchange;Username=postgres;Password=root");
             });
 
-            services.AddSingleton<MarketOpeningTimesRepository>();
+            services.AddSingleton<IMarketOpeningTimesService, MarketOpeningTimesRepository>();
             
             services.AddSingleton<IOrdersHistory, OrdersHistoryRepository>();
             services.AddHostedService<OrdersSynchroniserBackgroundService>();

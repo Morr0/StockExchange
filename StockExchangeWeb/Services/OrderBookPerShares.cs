@@ -22,12 +22,13 @@ namespace StockExchangeWeb.Services
         /// <summary>
         /// Places an order and tries to execute.
         /// </summary>
+        /// <param name="marketOpen"></param>
         /// <param name="order"></param>
         /// <returns>True -> Executed</returns>
-        public Dictionary<string, Order> PlaceAndTryExecute(Order order)
+        public Dictionary<string, Order> PlaceAndTryExecute(bool marketOpen, Order order)
         {
             PlaceOrder(ref order);
-            return TryExecute(order);
+            return TryExecute(marketOpen, order);
         }
 
         private void PlaceOrder(ref Order order)
@@ -55,15 +56,26 @@ namespace StockExchangeWeb.Services
         /// <summary>
         /// Will try to execute order immediately else will not persist.
         /// </summary>
+        /// <param name="marketOpen"></param>
         /// <param name="order"></param>
         /// <returns>True -> Executed</returns>
-        public Dictionary<string, Order> TryExecute(Order order)
+        public Dictionary<string, Order> TryExecute(bool marketOpen, Order order)
         {
             Dictionary<string, Order> ordersInvolved = new Dictionary<string, Order>
             {
                 // Will always execute regardless
                 {order.Id, order}
             };
+
+            if (!marketOpen)
+            {
+                if (order.OrderTimeInForce == OrderTimeInForce.GoodOrKill)
+                {
+                    order.OrderStatus = OrderStatus.DeletedDueToMarketClose;
+                }
+                
+                return ordersInvolved;
+            }
 
             if (!OppositeOrderExists(ref order))
             {

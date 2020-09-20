@@ -8,6 +8,7 @@
         /// <summary>
         /// When using an immediate limit order and no match exists
         /// </summary>
-        NoMatch
+        NoMatch,
+        DeletedDueToMarketClose
     }
 }
