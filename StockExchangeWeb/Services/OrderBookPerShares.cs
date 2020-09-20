@@ -86,7 +86,8 @@ namespace StockExchangeWeb.Services
             }
 
             Order oppositeOrder = ExecuteOppositeOrder(ref order);
-            ordersInvolved.Add(oppositeOrder.Id, oppositeOrder);
+            if (oppositeOrder != null)
+                ordersInvolved.Add(oppositeOrder.Id, oppositeOrder);
 
             return ordersInvolved;
         }
@@ -104,14 +105,14 @@ namespace StockExchangeWeb.Services
                 return null;
             
             // Execute
-            Order oppositeOrder = oppositeQueue.Dequeue();
-            // While loop to skip and dequeue deleted orders
-            while (oppositeQueue.Count > 0)
+            Order oppositeOrder = null;
+            do
             {
-                if (oppositeOrder.OrderStatus != OrderStatus.InMarket)
-                    oppositeOrder = oppositeQueue.Dequeue();
-            }
-            
+                oppositeOrder = oppositeQueue.Dequeue();
+                if (oppositeOrder.OrderStatus == OrderStatus.InMarket)
+                    break;
+            } while (oppositeOrder.OrderStatus != OrderStatus.InMarket);
+
             // Using the oppositeOrder price so it conforms to market orders as well
             oppositeOrder.ExecutedPrice = oppositeOrder.AskPrice;
             order.ExecutedPrice = oppositeOrder.ExecutedPrice;
