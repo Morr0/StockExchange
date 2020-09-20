@@ -10,7 +10,7 @@ namespace StockExchangeWeb.Services.TradedEntitiesService
             {"A", new TradableSecurity
                 {
                     Ticker = "A",
-                    SecurityType = SecurityType.STOCK,
+                    SecurityType = SecurityType.Stock,
                     Description = "This is a security",
                     Name = "Aaaa",
                     OutstandingAmount = 15000

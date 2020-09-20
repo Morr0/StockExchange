@@ -1,7 +1,7 @@
 ﻿namespace StockExchangeWeb.Models
 {
-    public enum SecurityType : byte
+    public enum SecurityType
     {
-        STOCK
+        Stock
     }
 }

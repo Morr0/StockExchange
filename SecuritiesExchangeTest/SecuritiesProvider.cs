@@ -14,7 +14,7 @@ namespace SecuritiesExchangeTest
                 Description = "A is a company stock",
                 Ticker = "A",
                 OutstandingAmount = 15000,
-                SecurityType = SecurityType.STOCK
+                SecurityType = SecurityType.Stock
             }}
         };
     }
