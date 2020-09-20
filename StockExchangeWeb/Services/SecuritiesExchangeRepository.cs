@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using StockExchangeWeb.DTOs;
 using StockExchangeWeb.Models.Orders;
 using StockExchangeWeb.Services.HistoryService;
+using StockExchangeWeb.Services.MarketTimesService;
 using StockExchangeWeb.Services.OrderTracingService;
 using StockExchangeWeb.Services.TradedEntitiesService;
 
@@ -15,6 +16,7 @@ namespace StockExchangeWeb.Services
         private ISecuritiesProvider _securitiesProvider;
         private IOrdersHistory _ordersHistory;
         private OrderTraceRepository _traceRepository;
+        private MarketOpeningTimesRepository _marketTimes;
 
         private Dictionary<string, Order> _ordersById;
         
@@ -27,11 +29,12 @@ namespace StockExchangeWeb.Services
         private decimal _lastClosestBidAskSpread;
 
         public InMemoryStockExchangeRepository(ISecuritiesProvider securitiesProvider, IOrdersHistory ordersHistory
-            , OrderTraceRepository traceRepository)
+            , OrderTraceRepository traceRepository, MarketOpeningTimesRepository marketTimes)
         {
             _securitiesProvider = securitiesProvider;
             _ordersHistory = ordersHistory;
             _traceRepository = traceRepository;
+            _marketTimes = marketTimes;
             
             _ordersById = new Dictionary<string, Order>();
             _orderBooks = new Dictionary<string, OrderBookPerPrice>
@@ -50,6 +53,17 @@ namespace StockExchangeWeb.Services
             
             // Trace
             _traceRepository.Trace(order);
+
+            if (!_marketTimes.IsMarketOpen(order.Ticker))
+            {
+                // Place order in history
+                await _ordersHistory.ArchiveOrder(new Dictionary<string, Order>
+                {
+                    {order.Id, order}
+                });
+                
+                return order;
+            }
             
             Dictionary<string, Order> ordersInvolved = null;
             if (order.LimitOrder)
@@ -130,7 +144,7 @@ namespace StockExchangeWeb.Services
 
         public OrdersPlaced GetOrdersPlaced(string ticker)
         {
-            OrdersPlaced ordersPlaced = new OrdersPlaced(ticker, _lastExecutedPrice, 
+            OrdersPlaced ordersPlaced = new OrdersPlaced(_marketTimes.IsMarketOpen(ticker), ticker, _lastExecutedPrice, 
                 _lastClosestAsk, _lastClosestBid, _lastClosestBidAskSpread);
 
             var enumberable = _orderBooks[ticker].SharesOrderBooks;

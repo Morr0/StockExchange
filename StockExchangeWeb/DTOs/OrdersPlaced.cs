@@ -6,15 +6,18 @@ namespace StockExchangeWeb.DTOs
     // NOTE: Return string instead of decimal as ASP.NET CORE 3.1 doesn't support a decimal key of dictionary
     public class OrdersPlaced
     {
-        public OrdersPlaced(string ticker, decimal lastExecutedPrice, decimal closestAskPrice, decimal closestBidPrice,
+        public OrdersPlaced(bool marketOpen,string ticker, decimal lastExecutedPrice, decimal closestAskPrice, decimal closestBidPrice,
             decimal closestSpread)
         {
+            MarketOpen = marketOpen;
             Ticker = ticker;
             LastExecutedPrice = lastExecutedPrice;
             ClosestAskPrice = closestAskPrice;
             ClosestBidPrice = closestBidPrice;
             ClosestSpread = closestSpread;
         }
+        
+        public bool MarketOpen { get; }
         
         public string Ticker { get; }
         

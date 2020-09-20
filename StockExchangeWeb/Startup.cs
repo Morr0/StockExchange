@@ -15,6 +15,7 @@ using Microsoft.Extensions.Logging;
 using StockExchangeWeb.Data;
 using StockExchangeWeb.Services;
 using StockExchangeWeb.Services.HistoryService;
+using StockExchangeWeb.Services.MarketTimesService;
 using StockExchangeWeb.Services.OrderTracingService;
 using StockExchangeWeb.Services.TradedEntitiesService;
 
@@ -37,6 +38,8 @@ namespace StockExchangeWeb
                 // TODO Use do not hardcode
                 opts.UseNpgsql("Host=localhost;Database=SecuritiesExchange;Username=postgres;Password=root");
             });
+
+            services.AddSingleton<MarketOpeningTimesRepository>();
             
             services.AddSingleton<IOrdersHistory, OrdersHistoryRepository>();
             services.AddHostedService<OrdersSynchroniserBackgroundService>();
