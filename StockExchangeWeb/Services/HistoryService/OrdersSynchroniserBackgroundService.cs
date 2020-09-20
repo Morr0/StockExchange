@@ -63,10 +63,10 @@ namespace StockExchangeWeb.Services.HistoryService
             // 2. Lock table and pull ids in _ordersWorked, some or all maybe null
             // null ones are non-existent
             List<Order> pulledOrders = await PullExistingArchivedOrders(ordersWorked);
-            (List<Order> toUpdateOrders, List<Order> newOrders) = GetToUpdateOrders(ordersWorked, pulledOrders);
+            List<Order> newOrders = GetToUpdateOrders(ordersWorked, pulledOrders);
 
             // 3. Update existing ids and insert new ones
-            await TransactUpdatedExistingOrders(toUpdateOrders);
+            TransactUpdatedExistingOrders(ref pulledOrders);
             await TransactNewOrders(newOrders);
             await PushTransaction();
             
@@ -85,16 +85,21 @@ namespace StockExchangeWeb.Services.HistoryService
             await _dbContext.Order.AddRangeAsync(newOrders);
         }
 
-        private async Task TransactUpdatedExistingOrders(List<Order> toUpdateOrders)
+        private void TransactUpdatedExistingOrders(ref List<Order> toUpdateOrders)
         {
-            _dbContext.Order.UpdateRange(toUpdateOrders);
-            // await _dbContext.Order.AddRangeAsync(toUpdateOrders);
+            foreach (var order in toUpdateOrders)
+            {
+                if (order != null)
+                {
+                    _dbContext.Entry(order).State = EntityState.Modified;
+                    // _dbContext.Order.Update(order);
+                }
+            }
         }
 
-        private (List<Order>, List<Order>) GetToUpdateOrders(Dictionary<string, TrackedOrder> ordersWorked,
+        private List<Order> GetToUpdateOrders(Dictionary<string, TrackedOrder> ordersWorked,
             List<Order> pulledOrders)
         {
-            List<Order> toUpdateOrders = new List<Order>();
             List<Order> newOrders = new List<Order>();
 
             if (pulledOrders.Count > 0)
@@ -108,11 +113,6 @@ namespace StockExchangeWeb.Services.HistoryService
                     TrackedOrder order = ordersWorked[pulledOrder.Id];
                     order.ToBeUpdated = true;
                     pulledOrder.RealizeChanges(order.Order);
-                    toUpdateOrders.Add(pulledOrder);
-                }
-                else
-                {
-                    Console.WriteLine("Null");
                 }
             }
 
@@ -123,19 +123,14 @@ namespace StockExchangeWeb.Services.HistoryService
                     newOrders.Add(orderPair.Value.Order);
             }
             
-            return (toUpdateOrders, newOrders);
+            return newOrders;
         }
 
         private async Task<List<Order>> PullExistingArchivedOrders(Dictionary<string, TrackedOrder> ordersWorked)
         {
-            var queryable = _dbContext.Order.AsTracking();
-            foreach (var orderPair in ordersWorked)
-            {
-                string id = orderPair.Key;
-                queryable = queryable.Where(order => order.Id == id);
-            }
-            
-            return await queryable.ToListAsync();
+            return await _dbContext.Order
+                .Where(x => ordersWorked.Keys.Contains(x.Id))
+                .ToListAsync();
         }
 
         private Dictionary<string, TrackedOrder> GetOrdersToBeArchived()

@@ -12,7 +12,11 @@ namespace StockExchangeWeb.Models.Orders
             
             foreach (var prop in props)
             {
-                prop.SetValue(oldOrder, currentOrderType.GetProperty(nameof(prop.Name)).GetValue(currentOrder));
+                object oldVal = prop.GetValue(oldOrder);
+                object currentVal = prop.GetValue(currentOrder);
+                
+                if (oldVal != currentVal)
+                    prop.SetValue(oldOrder, currentVal);
             }
         }
     }
