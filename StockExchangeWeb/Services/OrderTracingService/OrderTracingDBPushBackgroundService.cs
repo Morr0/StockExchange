@@ -29,7 +29,7 @@ namespace StockExchangeWeb.Services.OrderTracingService
                         DBContext dbContext = scope.ServiceProvider.GetService<DBContext>();
                         
                         Console.WriteLine("Trace service");
-                        PushTraces(dbContext);
+                        await PushTraces(dbContext);
                         // TODO handle errors and do retry
                     }
                 }
@@ -42,14 +42,18 @@ namespace StockExchangeWeb.Services.OrderTracingService
             }
         }
 
-        private void PushTraces(DBContext dbContext)
+        private async Task PushTraces(DBContext dbContext)
         {
             lock (_traceService._orderTraces)
             {
+                if (_traceService._orderTraces.Count == 0)
+                    return;
+                
                 dbContext.OrderTrace.AddRange(_traceService._orderTraces);
-                dbContext.SaveChanges();
                 _traceService._orderTraces.Clear();
             }
+            
+            await dbContext.SaveChangesAsync();
         }
     }
 }

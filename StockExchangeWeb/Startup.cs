@@ -39,7 +39,7 @@ namespace StockExchangeWeb
             });
             
             services.AddSingleton<IOrdersHistory, OrdersHistoryRepository>();
-            services.AddHostedService<OrdersSynchroniserBackgroundService>();
+            //services.AddHostedService<OrdersSynchroniserBackgroundService>();
 
             services.AddSingleton<OrderTraceRepository>();
             services.AddHostedService<OrderTracingDBPushBackgroundService>();

@@ -15,20 +15,14 @@ namespace StockExchangeWeb.Services.OrderTracingService
             _orderTraces.AddLast(new OrderTrace
             {
                 OrderId = order.Id,
-                Order = order,
                 OrderStatus = order.OrderStatus
             });
         }
 
         public void Trace(Dictionary<string, Order> orders)
         {
-            var enumerator = orders.GetEnumerator();
-            while (enumerator.MoveNext())
-            {
-                var pair = enumerator.Current;
-                Order order = pair.Value;
-                Trace(order);
-            }
+            foreach (var orderPair in orders)
+                Trace(orderPair.Value);
         }
     }
 }

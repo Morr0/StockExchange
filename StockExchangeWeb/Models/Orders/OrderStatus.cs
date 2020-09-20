@@ -1,6 +1,6 @@
 ﻿namespace StockExchangeWeb.Models.Orders
 {
-    public enum OrderStatus : byte
+    public enum OrderStatus
     {
         InMarket,
         Executed,

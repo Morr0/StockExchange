@@ -14,8 +14,7 @@ namespace StockExchangeWeb.Models.OrderTrace
         
         [ForeignKey(nameof(Orders.Order))]
         public string OrderId { get; set; }
-        public Order Order { get; set; }
-        
+
         public OrderStatus OrderStatus { get; set; }
     }
 }

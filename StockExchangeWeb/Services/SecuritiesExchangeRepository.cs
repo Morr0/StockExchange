@@ -30,7 +30,7 @@ namespace StockExchangeWeb.Services
             , OrderTraceRepository traceRepository)
         {
             _securitiesProvider = securitiesProvider;
-            _ordersHistory = ordersHistory;
+            //_ordersHistory = ordersHistory;
             _traceRepository = traceRepository;
             
             _ordersById = new Dictionary<string, Order>();
@@ -48,6 +48,7 @@ namespace StockExchangeWeb.Services
             // Place order
             _ordersById.Add(order.Id, order);
             
+            // Trace
             _traceRepository.Trace(order);
             
             Dictionary<string, Order> ordersInvolved = null;
@@ -69,6 +70,7 @@ namespace StockExchangeWeb.Services
             ReevaluatePricing(ref order);
             
             // await _ordersHistory.ArchiveOrder(ordersInvolved);
+            // Trace if an exchange occured
             if (ordersInvolved.Count > 1)
                 _traceRepository.Trace(ordersInvolved);
 
