@@ -53,41 +53,23 @@ namespace StockExchangeWeb.Services.HistoryService
             if (!EligibleToStartSync())
                 return;
             
-            Console.WriteLine("Indeed eligible to update orders");
-
-            // 1. Lock, copy, clear the history memory and unlock
             Dictionary<string, TrackedOrder> ordersWorked = GetOrdersToBeArchived();
-            
             // TODO Lock Order table
-
-            // 2. Lock table and pull ids in _ordersWorked, some or all maybe null
-            // null ones are non-existent
+            
             List<Order> pulledOrders = await PullExistingArchivedOrders(ordersWorked);
             List<Order> newOrders = GetToUpdateOrders(ordersWorked, pulledOrders);
-
-            // 3. Update existing ids and insert new ones
-            TransactUpdatedExistingOrders(ref pulledOrders);
-            await TransactNewOrders(newOrders);
-            await PushTransaction();
             
-            Console.WriteLine("Successfully pushed to DB");
+            // TODO deal with unsuccessful transactions
+            await ToDB(pulledOrders, newOrders);
 
-            // Unlock
+            // TODO Unlock Order table
         }
 
-        private async Task PushTransaction()
+        // Push back everything back up
+        private async Task ToDB(List<Order> pulledOrders, List<Order> newOrders)
         {
-            await _dbContext.SaveChangesAsync();
-        }
-
-        private async Task TransactNewOrders(List<Order> newOrders)
-        {
-            await _dbContext.Order.AddRangeAsync(newOrders);
-        }
-
-        private void TransactUpdatedExistingOrders(ref List<Order> toUpdateOrders)
-        {
-            foreach (var order in toUpdateOrders)
+            // Update existings
+            foreach (var order in pulledOrders)
             {
                 if (order != null)
                 {
@@ -95,16 +77,22 @@ namespace StockExchangeWeb.Services.HistoryService
                     // _dbContext.Order.Update(order);
                 }
             }
+            
+            // Add new
+            await _dbContext.Order.AddRangeAsync(newOrders);
+            
+            // Push as transaction
+            await _dbContext.SaveChangesAsync();
         }
 
+        // - Pulls orders with ids of orders passed in
+        // - Updates pulled orders from DB so they can be updated in DB
+        // - Separates new orders to its list
         private List<Order> GetToUpdateOrders(Dictionary<string, TrackedOrder> ordersWorked,
             List<Order> pulledOrders)
         {
             List<Order> newOrders = new List<Order>();
 
-            if (pulledOrders.Count > 0)
-                Console.WriteLine("Some pulled orders");
-            
             // Add updated orders
             foreach (var pulledOrder in pulledOrders)
             {
@@ -133,6 +121,9 @@ namespace StockExchangeWeb.Services.HistoryService
                 .ToListAsync();
         }
 
+        // - Locks all in-memory orders in history
+        // - Copies all data 
+        // - Clears the original history
         private Dictionary<string, TrackedOrder> GetOrdersToBeArchived()
         {
             Dictionary<string, TrackedOrder> ordersChanged = null;
@@ -145,7 +136,6 @@ namespace StockExchangeWeb.Services.HistoryService
                     ordersChanged.Add(pair.Key, new TrackedOrder(pair.Value));
                 }
                 
-                // Clear old 
                 _ordersHistory._archivedOrders.Clear();
             }
             
@@ -154,8 +144,10 @@ namespace StockExchangeWeb.Services.HistoryService
 
         private bool EligibleToStartSync()
         {
-            Console.WriteLine("Is eligible to push history to database");
-            return _ordersHistory._archivedOrders.Count > 0;
+            lock (_ordersHistory._archivedOrders)
+            {
+                return _ordersHistory._archivedOrders.Count > 0;
+            }
         }
     }
 }
