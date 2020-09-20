@@ -15,7 +15,7 @@ namespace SecuritiesExchangeTest.ServicesTesting
     {
         private static MarketOpeningTimesRepository _marketOpeningTimes = new MarketOpeningTimesRepository();
         private static IOrdersHistory _ordersHistory = new OrdersHistoryRepository();
-        private ISecuritiesProvider _securitiesProvider = new SecuritiesProvider();
+        private ISecuritiesProvider _securitiesProvider = new MockSecuritiesProvider();
         private OrderTraceRepository _orderTraceRepository = new OrderTraceRepository();
         
         [Fact]

@@ -15,7 +15,7 @@ namespace SecuritiesExchangeTest
     {
         private static MarketOpeningTimesRepository _marketOpeningTimes = new MarketOpeningTimesRepository();
         private static IOrdersHistory _ordersHistory = new OrdersHistoryRepository();
-        private static ISecuritiesProvider _securitiesProvider = new SecuritiesProvider();        
+        private static ISecuritiesProvider _securitiesProvider = new MockSecuritiesProvider();       
         private static OrderTraceRepository _orderTraceRepository = new OrderTraceRepository();
 
         [Fact]
