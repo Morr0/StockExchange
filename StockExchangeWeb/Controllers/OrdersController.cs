@@ -8,6 +8,7 @@ using StockExchangeWeb.DTOs;
 using StockExchangeWeb.Models;
 using StockExchangeWeb.Models.Orders;
 using StockExchangeWeb.Services;
+using StockExchangeWeb.Services.ExchangeService;
 using StockExchangeWeb.Services.TradedEntitiesService;
 
 namespace StockExchangeWeb.Controllers

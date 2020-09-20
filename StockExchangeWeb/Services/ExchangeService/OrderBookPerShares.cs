@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using StockExchangeWeb.Models.Orders;
 using StockExchangeWeb.Utilities;
 
-namespace StockExchangeWeb.Services
+namespace StockExchangeWeb.Services.ExchangeService
 {
     /// <summary>
     /// Independent of ask price. Holds the asked shares and order type.

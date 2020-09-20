@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace StockExchangeWeb.Services
+namespace StockExchangeWeb.Services.ExchangeService
 {
     public class OrderBookPerPrice
     {

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using StockExchangeWeb.DTOs;
 using StockExchangeWeb.Models.Orders;
@@ -9,7 +8,7 @@ using StockExchangeWeb.Services.MarketTimesService;
 using StockExchangeWeb.Services.OrderTracingService;
 using StockExchangeWeb.Services.TradedEntitiesService;
 
-namespace StockExchangeWeb.Services
+namespace StockExchangeWeb.Services.ExchangeService
 {
     public class InMemoryStockExchangeRepository : IStockExchange
     {

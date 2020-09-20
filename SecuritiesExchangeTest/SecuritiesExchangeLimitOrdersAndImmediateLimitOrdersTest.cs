@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using StockExchangeWeb.DTOs;
 using StockExchangeWeb.Models.Orders;
 using StockExchangeWeb.Services;
+using StockExchangeWeb.Services.ExchangeService;
 using StockExchangeWeb.Services.HistoryService;
 using StockExchangeWeb.Services.MarketTimesService;
 using StockExchangeWeb.Services.OrderTracingService;

@@ -14,6 +14,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using StockExchangeWeb.Data;
 using StockExchangeWeb.Services;
+using StockExchangeWeb.Services.ExchangeService;
 using StockExchangeWeb.Services.HistoryService;
 using StockExchangeWeb.Services.MarketTimesService;
 using StockExchangeWeb.Services.OrderTracingService;

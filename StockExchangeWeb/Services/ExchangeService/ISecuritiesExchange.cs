@@ -2,7 +2,7 @@
 using StockExchangeWeb.DTOs;
 using StockExchangeWeb.Models.Orders;
 
-namespace StockExchangeWeb.Services
+namespace StockExchangeWeb.Services.ExchangeService
 {
     public interface IStockExchange
     {
