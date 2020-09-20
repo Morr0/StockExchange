@@ -111,6 +111,13 @@ namespace StockExchangeWeb.Services
 
             order.OrderStatus = OrderStatus.Deleted;
             order.OrderDeletionTime = DateTime.UtcNow.ToString();
+
+            _ordersHistory.ArchiveOrder(new Dictionary<string, Order>
+            {
+                {orderId, order}
+            });
+            // Trace
+            _traceRepository.Trace(order);
             
             // Edit order shares metadata from order book based on order type
             if (order.BuyOrder)
