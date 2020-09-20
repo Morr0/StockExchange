@@ -67,7 +67,7 @@ namespace StockExchangeWeb.Services
 
             if (!OppositeOrderExists(ref order))
             {
-                if (order.OrderType == OrderType.LimitOrderImmediate)
+                if (order.LimitOrder && order.OrderTimeInForce == OrderTimeInForce.GoodOrKill)
                     order.OrderStatus = OrderStatus.NoMatch;
 
                 return ordersInvolved;

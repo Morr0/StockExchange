@@ -16,10 +16,10 @@ namespace StockExchangeWeb.Utilities
 
         public void Enqueue(ref Order order)
         {
-            if (order.OrderType == OrderType.MarketOrder)
-                _marketOrders.Enqueue(order);
-            else
+            if (order.LimitOrder)
                 _remainingOrders.Enqueue(order);
+            else
+                _marketOrders.Enqueue(order);
         }
 
         public Order Dequeue()

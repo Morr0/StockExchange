@@ -52,19 +52,17 @@ namespace StockExchangeWeb.Services
             _traceRepository.Trace(order);
             
             Dictionary<string, Order> ordersInvolved = null;
-            switch (order.OrderType)
+            if (order.LimitOrder)
             {
-                case OrderType.MarketOrder:
-                    // TODO know the mechanics of which price makes the market
-                    decimal price = order.BuyOrder ? _lastClosestBid : _lastClosestAsk;
-                    ordersInvolved = _orderBooks[tkr][price].PlaceAndTryExecute(order);
-                    break;
-                case OrderType.LimitOrder:
+                if (order.OrderTimeInForce == OrderTimeInForce.GoodTillExecution)
                     ordersInvolved = _orderBooks[tkr][askPrice].PlaceAndTryExecute(order);
-                    break;
-                case OrderType.LimitOrderImmediate:
+                else if (order.OrderTimeInForce == OrderTimeInForce.GoodOrKill)
                     ordersInvolved = _orderBooks[tkr][askPrice].TryExecute(order);
-                    break;
+            }
+            else
+            {
+                decimal price = order.BuyOrder ? _lastClosestBid : _lastClosestAsk;
+                ordersInvolved = _orderBooks[tkr][price].PlaceAndTryExecute(order);
             }
             
             ReevaluatePricing(ref order);

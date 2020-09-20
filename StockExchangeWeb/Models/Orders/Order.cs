@@ -8,7 +8,7 @@ namespace StockExchangeWeb.Models.Orders
         [Key]
         public string Id { get; set; } = Guid.NewGuid().ToString();
 
-        public OrderType OrderType { get; set; } = OrderType.LimitOrder;
+        public bool LimitOrder { get; set; } = true;
 
         public OrderTimeInForce OrderTimeInForce { get; set; } = OrderTimeInForce.GoodTillExecution;
 

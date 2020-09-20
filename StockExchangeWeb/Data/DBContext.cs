@@ -23,10 +23,7 @@ namespace StockExchangeWeb.Data
             modelBuilder.Entity<Order>()
                 .Property(model => model.OrderStatus)
                 .HasConversion<int>();
-            modelBuilder.Entity<Order>()
-                .Property(model => model.OrderType)
-                .HasConversion<int>();
-            
+
             // Order trace model
             // modelBuilder.Entity<OrderTrace>()
             //     .HasIndex(model => model.OrderId);

@@ -8,9 +8,6 @@ namespace StockExchangeWeb.DTOs
     public class OrderWriteDTO
     {
         private decimal _askPrice;
-        
-        [NotNull]
-        public OrderType OrderType { get; set; } = OrderType.LimitOrder;
 
         [NotNull] 
         public OrderTimeInForce OrderTimeInForce { get; set; } = OrderTimeInForce.GoodTillExecution;
