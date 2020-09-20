@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using StockExchangeWeb.Models.Orders;
 using StockExchangeWeb.Services;
 using StockExchangeWeb.Services.HistoryService;
+using StockExchangeWeb.Services.MarketTimesService;
 using StockExchangeWeb.Services.OrderTracingService;
 using StockExchangeWeb.Services.TradedEntitiesService;
 using Xunit;
@@ -11,6 +12,7 @@ namespace SecuritiesExchangeTest
 {
     public class SecuritiesExchangeOrdersHistoryTest
     {
+        private static MarketOpeningTimesRepository _marketOpeningTimes = new MarketOpeningTimesRepository();
         private OrdersHistoryRepository _ordersHistory = new OrdersHistoryRepository();
         private static ISecuritiesProvider _securitiesProvider = new SecuritiesProvider();
         private static OrderTraceRepository _orderTraceRepository = new OrderTraceRepository();
@@ -19,7 +21,8 @@ namespace SecuritiesExchangeTest
         public async Task PerformBasicTradeWhileCheckingHistoryIsCorrect()
         {
             // Arrange
-            IStockExchange stockExchange = new InMemoryStockExchangeRepository(_securitiesProvider, _ordersHistory, _orderTraceRepository);
+            IStockExchange stockExchange = new InMemoryStockExchangeRepository(_securitiesProvider, _ordersHistory,
+                _orderTraceRepository, _marketOpeningTimes);
             string ticker = "A";
             uint amount = 500;
             decimal askPrice = 13.0m;

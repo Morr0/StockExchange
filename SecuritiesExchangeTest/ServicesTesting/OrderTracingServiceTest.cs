@@ -3,6 +3,7 @@ using StockExchangeWeb.DTOs;
 using StockExchangeWeb.Models.Orders;
 using StockExchangeWeb.Services;
 using StockExchangeWeb.Services.HistoryService;
+using StockExchangeWeb.Services.MarketTimesService;
 using StockExchangeWeb.Services.OrderTracingService;
 using StockExchangeWeb.Services.TradedEntitiesService;
 using Xunit;
@@ -11,6 +12,7 @@ namespace SecuritiesExchangeTest.ServicesTesting
 {
     public class OrderTracingServiceTest
     {
+        private static MarketOpeningTimesRepository _marketOpeningTimes = new MarketOpeningTimesRepository();
         private static IOrdersHistory _ordersHistory = new OrdersHistoryRepository();
         private ISecuritiesProvider _securitiesProvider = new SecuritiesProvider();
         private OrderTraceRepository _orderTraceRepository = new OrderTraceRepository();
@@ -19,7 +21,7 @@ namespace SecuritiesExchangeTest.ServicesTesting
         public async Task ShouldShowCorrectTraceOnExecutedOrders()
         {
             IStockExchange stockExchange = new InMemoryStockExchangeRepository(_securitiesProvider, _ordersHistory
-                , _orderTraceRepository);
+                , _orderTraceRepository, _marketOpeningTimes);
             string ticker = "A";
             uint amount = 500;
             decimal askPrice = 13.0m;
@@ -43,7 +45,7 @@ namespace SecuritiesExchangeTest.ServicesTesting
 
             // Assert I
             Assert.True(_orderTraceRepository._orderTraces.Count == 1);
-            Assert.Equal(placedOrder1, _orderTraceRepository._orderTraces.First.Value.Order);
+            Assert.Equal(placedOrder1.Id, _orderTraceRepository._orderTraces.First.Value.OrderId);
             
             // Act II
             Order placedOrder2 = await stockExchange.PlaceOrder(order2);
