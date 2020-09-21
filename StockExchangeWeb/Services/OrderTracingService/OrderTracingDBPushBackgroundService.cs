@@ -24,14 +24,10 @@ namespace StockExchangeWeb.Services.OrderTracingService
             {
                 try
                 {
-                    using (var scope = _scopeFactory.CreateScope())
-                    {
-                        DBContext dbContext = scope.ServiceProvider.GetService<DBContext>();
-                        
-                        Console.WriteLine("Trace service");
-                        await PushTraces(dbContext);
-                        // TODO handle errors and do retry
-                    }
+                    using var scope = _scopeFactory.CreateScope();
+                    DBContext dbContext = scope.ServiceProvider.GetService<DBContext>();
+                    
+                    PushTraces(dbContext);
                 }
                 catch (Exception e)
                 {
@@ -42,7 +38,7 @@ namespace StockExchangeWeb.Services.OrderTracingService
             }
         }
 
-        private async Task PushTraces(DBContext dbContext)
+        private void PushTraces(DBContext dbContext)
         {
             lock (_traceService._orderTraces)
             {
@@ -50,10 +46,10 @@ namespace StockExchangeWeb.Services.OrderTracingService
                     return;
                 
                 dbContext.OrderTrace.AddRange(_traceService._orderTraces);
+                dbContext.SaveChanges();
+                // Make sure not to clear the traces unless a successful transaction
                 _traceService._orderTraces.Clear();
             }
-            
-            await dbContext.SaveChangesAsync();
         }
     }
 }
