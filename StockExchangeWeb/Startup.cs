@@ -36,8 +36,7 @@ namespace StockExchangeWeb
         {
             services.AddDbContextPool<DBContext>(opts =>
             {
-                // TODO Use do not hardcode
-                opts.UseNpgsql("Host=localhost;Database=SecuritiesExchange;Username=postgres;Password=root");
+                opts.UseNpgsql(Configuration["PostgresConnectionString"]);
             });
 
             services.AddSingleton<IMarketOpeningTimesService, MarketOpeningTimesRepository>();
