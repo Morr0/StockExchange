@@ -57,7 +57,7 @@ namespace StockExchangeWeb.Controllers
         [HttpDelete]
         public async Task<IActionResult> DeleteOrder([FromBody] OrderDeletionBody deletionBody)
         {
-            Order order = _stockExchange.RemoveOrder(deletionBody.OrderId);
+            Order order = await _stockExchange.RemoveOrder(deletionBody.OrderId);
             if (order == null)
                 return NotFound();
             if (order.OrderStatus == OrderStatus.Executed)

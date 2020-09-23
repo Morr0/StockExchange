@@ -19,9 +19,17 @@ namespace StockExchangeWeb.Services.CacheService
             await _strategy.Set(key, order);
         }
 
-        public async Task<Order> Decache(string key)
+        public async Task<Order> Get(string key)
         {
             return await _strategy.Get(key);
+        }
+
+        public async Task<bool> Decache(string key)
+        {
+            return await _strategy.RemoveMany(new[]
+            {
+                key
+            });
         }
 
         public async Task Decache(Dictionary<string, Order> ordersInvolved)

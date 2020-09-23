@@ -8,7 +8,8 @@ namespace StockExchangeWeb.Services.CacheService
     public interface IOrderCacheService
     {
         Task Cache(string key, Order order);
-        Task<Order> Decache(string key);
+        Task<Order> Get(string key);
+        Task<bool> Decache(string key);
         Task Decache(Dictionary<string, Order> ordersInvolved);
     }
 }

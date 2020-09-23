@@ -10,7 +10,7 @@ namespace StockExchangeWeb.Services.ExchangeService
         /// <returns>Null for was not able to place the order.</returns>
         Task<Order> PlaceOrder(Order order);
 
-        Order RemoveOrder(string orderId);
+        Task<Order> RemoveOrder(string orderId);
         
         OrdersPlaced GetOrdersPlaced(string ticker);
     }

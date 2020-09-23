@@ -97,10 +97,24 @@ namespace StockExchangeWeb.Services.ExchangeService
                 
                 // Distribute
                 await _orderCacheService.Decache(ordersInvolved);
+
+                RemoveInvolvedOrdersHere(ordersInvolved);
             }
                 
 
             return order;
+        }
+
+        private void RemoveInvolvedOrdersHere(Dictionary<string, Order> ordersInvolved)
+        {
+            foreach (var orderPair in ordersInvolved)
+            {
+                string orderId = orderPair.Key;
+                if (_ordersById.ContainsKey(orderId))
+                {
+                    _ordersById.Remove(orderId);
+                }
+            }
         }
 
         // Re-evaluates the bid/ask prices to the closest differences
@@ -123,12 +137,21 @@ namespace StockExchangeWeb.Services.ExchangeService
         }
 
 
-        public Order RemoveOrder(string orderId)
+        public async Task<Order> RemoveOrder(string orderId)
         {
+            // TODO rethink synchronisation here
+            Order order = null;
             if (!_ordersById.ContainsKey(orderId))
-                return null;
-
-            Order order = _ordersById[orderId];
+            {
+                order = await _orderCacheService.Get(orderId);
+                if (order == null)
+                    return null;
+                
+                // order = _ordersById[orderId];
+                // _ordersById.Remove(orderId);
+                await _orderCacheService.Decache(orderId);
+            }
+            
             if (order.OrderStatus == OrderStatus.Deleted)
                 return null;
             
@@ -152,7 +175,7 @@ namespace StockExchangeWeb.Services.ExchangeService
                 _orderBooks[order.Ticker][order.AskPrice].SharesToSell -= order.Amount;
             
             ReevaluatePricing(ref order);
-            
+
             return order;
         }
 
