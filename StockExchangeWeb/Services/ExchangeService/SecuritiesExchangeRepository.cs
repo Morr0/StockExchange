@@ -60,7 +60,7 @@ namespace StockExchangeWeb.Services.ExchangeService
             // Trace
             _traceRepository.Trace(order);
 
-            bool marketOpen = _marketTimes.IsMarketOpen(order.Ticker);
+            bool marketOpen = _marketTimes.IsMarketOpen(tkr);
 
             Dictionary<string, Order> ordersInvolved = null;
             if (order.LimitOrder)

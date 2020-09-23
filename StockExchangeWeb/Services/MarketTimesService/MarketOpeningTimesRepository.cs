@@ -1,17 +1,26 @@
 ﻿using System.Collections.Generic;
+using StockExchangeWeb.Services.MarketTimesService.MarketTimes;
 
 namespace StockExchangeWeb.Services.MarketTimesService
 {
     public class MarketOpeningTimesRepository : IMarketOpeningTimesService
     {
-        public MarketOpeningTimesRepository()
+        private readonly bool _openAllTheTime;
+        private readonly TimesStrategy _timesStrategy;
+
+        public MarketOpeningTimesRepository(bool openAllTheTime = true)
         {
-            // TODO load opening times
+            _openAllTheTime = openAllTheTime;
         }
-        
+
+        public MarketOpeningTimesRepository(TimesStrategy timesStrategy)
+        {
+            _timesStrategy = timesStrategy;
+        }
+
         public bool IsMarketOpen(string ticker)
         {
-            return true;
+            return _timesStrategy?.OpenNow() ?? _openAllTheTime;
         }
     }
 }
