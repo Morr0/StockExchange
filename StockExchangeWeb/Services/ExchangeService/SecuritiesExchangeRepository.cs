@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using StockExchangeWeb.DTOs;
 using StockExchangeWeb.Models.Orders;
+using StockExchangeWeb.Services.CacheService;
 using StockExchangeWeb.Services.HistoryService;
 using StockExchangeWeb.Services.MarketTimesService;
 using StockExchangeWeb.Services.OrderTracingService;
@@ -10,6 +11,8 @@ using StockExchangeWeb.Services.TradedEntitiesService;
 
 namespace StockExchangeWeb.Services.ExchangeService
 {
+    // TODO currently the cache is not considering other clusters if they double execute
+    
     public class InMemoryStockExchangeRepository : IStockExchange
     {
         private ISecuritiesProvider _securitiesProvider;
@@ -26,14 +29,17 @@ namespace StockExchangeWeb.Services.ExchangeService
         private decimal _lastClosestAsk = 0;
         private decimal _lastClosestBid = 0;
         private decimal _lastClosestBidAskSpread;
+        private IOrderCacheService _orderCacheService;
 
         public InMemoryStockExchangeRepository(ISecuritiesProvider securitiesProvider, IOrdersHistory ordersHistory
-            , OrderTraceRepository traceRepository, IMarketOpeningTimesService marketTimes)
+            , OrderTraceRepository traceRepository, IMarketOpeningTimesService marketTimes, 
+            IOrderCacheService orderCacheService)
         {
             _securitiesProvider = securitiesProvider;
             _ordersHistory = ordersHistory;
             _traceRepository = traceRepository;
             _marketTimes = marketTimes;
+            _orderCacheService = orderCacheService;
             
             _ordersById = new Dictionary<string, Order>();
             
@@ -56,6 +62,9 @@ namespace StockExchangeWeb.Services.ExchangeService
             
             // Place order
             _ordersById.Add(order.Id, order);
+            
+            // Distribute order placement
+            await _orderCacheService.Cache(order.Id, order);
             
             // Trace
             _traceRepository.Trace(order);
@@ -80,9 +89,16 @@ namespace StockExchangeWeb.Services.ExchangeService
             ReevaluatePricing(ref order);
             
             await _ordersHistory.ArchiveOrder(ordersInvolved);
-            // Trace if an exchange occured
+            // Trade happened
             if (ordersInvolved.Count > 1)
+            {
+                // Trace
                 _traceRepository.Trace(ordersInvolved);
+                
+                // Distribute
+                await _orderCacheService.Decache(ordersInvolved);
+            }
+                
 
             return order;
         }

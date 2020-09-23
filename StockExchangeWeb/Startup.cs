@@ -23,6 +23,8 @@ using StockExchangeWeb.Services.MarketTimesService;
 using StockExchangeWeb.Services.MarketTimesService.MarketTimes;
 using StockExchangeWeb.Services.OrderTracingService;
 using StockExchangeWeb.Services.TradedEntitiesService;
+using EasyCaching.Core.Serialization;
+using EasyCaching.Redis;
 
 namespace StockExchangeWeb
 {
@@ -82,7 +84,9 @@ namespace StockExchangeWeb
                 {
                     // TODO extract endpoint for appsettings.json
                     config.DBConfig.Endpoints.Add(new ServerEndPoint("localhost", 6379));
-                });
+                }, "redis1");
+
+                opts.WithMessagePack();
             });
             services.AddSingleton<CacheStrategy, RedisCacheStrategy>();
             services.AddSingleton<IOrderCacheService, OrderCacheRepository>();

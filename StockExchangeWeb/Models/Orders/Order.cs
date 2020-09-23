@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace StockExchangeWeb.Models.Orders
 {
+    [Serializable]
     public class Order
     {
         [Key]

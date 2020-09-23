@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using StockExchangeWeb.Models.Orders;
 
 namespace StockExchangeWeb.Services.CacheService
@@ -8,5 +9,6 @@ namespace StockExchangeWeb.Services.CacheService
     {
         Task Cache(string key, Order order);
         Task<Order> Decache(string key);
+        Task Decache(Dictionary<string, Order> ordersInvolved);
     }
 }
