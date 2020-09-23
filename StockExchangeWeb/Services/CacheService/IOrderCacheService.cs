@@ -11,5 +11,6 @@ namespace StockExchangeWeb.Services.CacheService
         Task<Order> Get(string key);
         Task<bool> Decache(string key);
         Task Decache(Dictionary<string, Order> ordersInvolved);
+        Task<Order> First(string cacheKey);
     }
 }

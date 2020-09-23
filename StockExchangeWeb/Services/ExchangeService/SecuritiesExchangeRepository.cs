@@ -19,6 +19,8 @@ namespace StockExchangeWeb.Services.ExchangeService
         private IOrdersHistory _ordersHistory;
         private OrderTraceRepository _traceRepository;
         private IMarketOpeningTimesService _marketTimes;
+        
+        private OrderManager _orderManager;
 
         private Dictionary<string, OrderBookPerPrice> _orderBooks;
         
@@ -38,6 +40,8 @@ namespace StockExchangeWeb.Services.ExchangeService
             _traceRepository = traceRepository;
             _marketTimes = marketTimes;
             _orderCacheService = orderCacheService;
+            
+            _orderManager = new OrderManager(orderCacheService);
             
             InitOrderBooks();
         }
@@ -64,19 +68,8 @@ namespace StockExchangeWeb.Services.ExchangeService
 
             bool marketOpen = _marketTimes.IsMarketOpen(tkr);
 
-            Dictionary<string, Order> ordersInvolved;
-            if (order.LimitOrder)
-            {
-                ordersInvolved = order.OrderTimeInForce == OrderTimeInForce.GoodTillExecution 
-                    ? _orderBooks[tkr][askPrice].PlaceAndTryExecute(marketOpen, order) 
-                    : _orderBooks[tkr][askPrice].TryExecute(marketOpen, order);
-            }
-            else
-            {
-                decimal price = order.BuyOrder ? _lastClosestBid : _lastClosestAsk;
-                ordersInvolved = _orderBooks[tkr][price].PlaceAndTryExecute(marketOpen, order);
-            }
-            
+            Dictionary<string, Order> ordersInvolved = await _orderManager.PutOrder(marketOpen, order);
+
             ReevaluatePricing(ref order);
             
             await _ordersHistory.ArchiveOrder(ordersInvolved);
