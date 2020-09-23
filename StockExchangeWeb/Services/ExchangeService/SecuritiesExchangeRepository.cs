@@ -20,8 +20,6 @@ namespace StockExchangeWeb.Services.ExchangeService
         private OrderTraceRepository _traceRepository;
         private IMarketOpeningTimesService _marketTimes;
 
-        private Dictionary<string, Order> _ordersById;
-        
         private Dictionary<string, OrderBookPerPrice> _orderBooks;
         
         private decimal _lastExecutedPrice;
@@ -41,8 +39,6 @@ namespace StockExchangeWeb.Services.ExchangeService
             _marketTimes = marketTimes;
             _orderCacheService = orderCacheService;
             
-            _ordersById = new Dictionary<string, Order>();
-            
             InitOrderBooks();
         }
 
@@ -59,10 +55,7 @@ namespace StockExchangeWeb.Services.ExchangeService
         {
             string tkr = order.Ticker;
             decimal askPrice = order.AskPrice;
-            
-            // Place order
-            _ordersById.Add(order.Id, order);
-            
+
             // Distribute order placement
             await _orderCacheService.Cache(order.Id, order);
             
@@ -71,14 +64,12 @@ namespace StockExchangeWeb.Services.ExchangeService
 
             bool marketOpen = _marketTimes.IsMarketOpen(tkr);
 
-            Dictionary<string, Order> ordersInvolved = null;
+            Dictionary<string, Order> ordersInvolved;
             if (order.LimitOrder)
             {
-                if (order.OrderTimeInForce == OrderTimeInForce.GoodTillExecution)
-                    ordersInvolved = _orderBooks[tkr][askPrice].PlaceAndTryExecute(marketOpen, order);
-                else if (order.OrderTimeInForce == OrderTimeInForce.GoodOrKill)
-                    ordersInvolved = _orderBooks[tkr][askPrice].TryExecute(marketOpen, order);
-
+                ordersInvolved = order.OrderTimeInForce == OrderTimeInForce.GoodTillExecution 
+                    ? _orderBooks[tkr][askPrice].PlaceAndTryExecute(marketOpen, order) 
+                    : _orderBooks[tkr][askPrice].TryExecute(marketOpen, order);
             }
             else
             {
@@ -97,24 +88,10 @@ namespace StockExchangeWeb.Services.ExchangeService
                 
                 // Distribute
                 await _orderCacheService.Decache(ordersInvolved);
-
-                RemoveInvolvedOrdersHere(ordersInvolved);
             }
                 
 
             return order;
-        }
-
-        private void RemoveInvolvedOrdersHere(Dictionary<string, Order> ordersInvolved)
-        {
-            foreach (var orderPair in ordersInvolved)
-            {
-                string orderId = orderPair.Key;
-                if (_ordersById.ContainsKey(orderId))
-                {
-                    _ordersById.Remove(orderId);
-                }
-            }
         }
 
         // Re-evaluates the bid/ask prices to the closest differences
@@ -139,32 +116,27 @@ namespace StockExchangeWeb.Services.ExchangeService
 
         public async Task<Order> RemoveOrder(string orderId)
         {
-            // TODO rethink synchronisation here
-            Order order = null;
-            if (!_ordersById.ContainsKey(orderId))
-            {
-                order = await _orderCacheService.Get(orderId);
-                if (order == null)
-                    return null;
-                
-                // order = _ordersById[orderId];
-                // _ordersById.Remove(orderId);
+            Order order = await _orderCacheService.Get(orderId);
+            if (order == null)
+                return null;
+            else
                 await _orderCacheService.Decache(orderId);
-            }
-            
+
+            // Verification checks
             if (order.OrderStatus == OrderStatus.Deleted)
                 return null;
-            
             if (order.OrderStatus != OrderStatus.InMarket)
                 return order;
 
+            // Actual delete
             order.OrderStatus = OrderStatus.Deleted;
             order.OrderDeletionTime = DateTime.UtcNow.ToString();
 
-            _ordersHistory.ArchiveOrder(new Dictionary<string, Order>
+            await _ordersHistory.ArchiveOrder(new Dictionary<string, Order>
             {
                 {orderId, order}
             });
+            
             // Trace
             _traceRepository.Trace(order);
             
