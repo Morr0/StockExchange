@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using EasyCaching.Core.Configurations;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -14,6 +15,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using StockExchangeWeb.Data;
 using StockExchangeWeb.Services;
+using StockExchangeWeb.Services.CacheService;
+using StockExchangeWeb.Services.CacheService.Implementation;
 using StockExchangeWeb.Services.ExchangeService;
 using StockExchangeWeb.Services.HistoryService;
 using StockExchangeWeb.Services.MarketTimesService;
@@ -71,6 +74,18 @@ namespace StockExchangeWeb
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             
             services.AddSingleton<IStockExchange, InMemoryStockExchangeRepository>();
+            
+            // Caching
+            services.AddEasyCaching(opts =>
+            {
+                opts.UseRedis(config =>
+                {
+                    // TODO extract endpoint for appsettings.json
+                    config.DBConfig.Endpoints.Add(new ServerEndPoint("localhost", 6379));
+                });
+            });
+            services.AddSingleton<CacheStrategy, RedisCacheStrategy>();
+            services.AddSingleton<IOrderCacheService, OrderCacheRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
