@@ -36,10 +36,10 @@ namespace StockExchangeWeb.Services.MarketTimesService.MarketTimes
         {
             DateTime currentTime = DateTime.UtcNow;
 
-            if (!_daysOpen.ContainsKey(currentTime.DayOfWeek))
+            if (!_daysOpen[currentTime.DayOfWeek])
                 return false;
 
-            return _openTime.Hours <= currentTime.Hour && _closeTime.Hours >= currentTime.Hour;
+            return currentTime.TimeOfDay >= _openTime && currentTime.TimeOfDay <= _closeTime;
         }
     }
 }

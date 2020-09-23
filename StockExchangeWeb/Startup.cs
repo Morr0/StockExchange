@@ -17,6 +17,7 @@ using StockExchangeWeb.Services;
 using StockExchangeWeb.Services.ExchangeService;
 using StockExchangeWeb.Services.HistoryService;
 using StockExchangeWeb.Services.MarketTimesService;
+using StockExchangeWeb.Services.MarketTimesService.MarketTimes;
 using StockExchangeWeb.Services.OrderTracingService;
 using StockExchangeWeb.Services.TradedEntitiesService;
 
@@ -39,6 +40,22 @@ namespace StockExchangeWeb
                 opts.UseNpgsql(Configuration["PostgresConnectionString"]);
             });
 
+            // IF YOU WANT YOUR OWN TIMES THEN PLEASE CUSTOMIZE THE STRATEGY
+            // ALL TIME IS IN UTC
+            // THIS IS JUST AN EXAMPLE BELOW OF BUILTIN STRATEGY
+            // Open on specific days and times
+            // services.AddSingleton<IMarketOpeningTimesService, MarketOpeningTimesRepository>(provider =>
+            // {
+            //     TimesStrategy timesStrategy = new AllDaysSameOperatingHoursBasicStrategy
+            //     (true, true, false, true, true
+            //         // UTC
+            //         , false, false, 
+            //         new TimeSpan(3, 7, 0), 
+            //         new TimeSpan(3, 14, 0));
+            //     
+            //     return new MarketOpeningTimesRepository(timesStrategy);
+            // });
+            // Open all the time
             services.AddSingleton<IMarketOpeningTimesService, MarketOpeningTimesRepository>();
             
             services.AddSingleton<IOrdersHistory, OrdersHistoryRepository>();
