@@ -13,11 +13,8 @@ using StockExchangeWeb.Services.CacheService.Implementation;
 using StockExchangeWeb.Services.ExchangeService;
 using StockExchangeWeb.Services.HistoryService;
 using StockExchangeWeb.Services.MarketTimesService;
-using StockExchangeWeb.Services.MarketTimesService.MarketTimes;
 using StockExchangeWeb.Services.OrderTracingService;
 using StockExchangeWeb.Services.TradedEntitiesService;
-using EasyCaching.Core.Serialization;
-using EasyCaching.Redis;
 
 namespace StockExchangeWeb
 {
@@ -57,7 +54,7 @@ namespace StockExchangeWeb
             services.AddSingleton<IMarketOpeningTimesService, MarketOpeningTimesRepository>();
             
             services.AddSingleton<IOrdersHistory, OrdersHistoryRepository>();
-            services.AddHostedService<OrdersSynchroniserBackgroundService>();
+            // services.AddHostedService<OrdersSynchroniserBackgroundService>();
 
             services.AddSingleton<OrderTraceRepository>();
             services.AddHostedService<OrderTracingDBPushBackgroundService>();

@@ -90,23 +90,26 @@ namespace StockExchangeWeb.Services.ExchangeService
         }
 
 
-        public async Task<Order> RemoveOrder(string orderId)
+        public async Task<Order> RemoveOrder(string orderDeletionKey)
         {
-            Order order = await _orderManager.RemoveOrder(orderId);
+            Order order = await _orderManager.RemoveOrder(orderDeletionKey);
+            if (order == null)
+                return null;
 
+            Console.WriteLine("Beyond point 2");
+            
             await _ordersHistory.ArchiveOrder(new Dictionary<string, Order>
             {
-                {orderId, order}
+                {orderDeletionKey, order}
             });
             
-            // Trace
             _traceRepository.Trace(order);
             
-            // Edit order shares metadata from order book based on order type
-            if (order.BuyOrder)
-                _orderBooks[order.Ticker][order.AskPrice].SharesToBuy -= order.Amount;
-            else
-                _orderBooks[order.Ticker][order.AskPrice].SharesToSell -= order.Amount;
+            // TODO shares lookup: take care
+            // if (order.BuyOrder)
+            //     _orderBooks[order.Ticker][order.AskPrice].SharesToBuy -= order.Amount;
+            // else
+            //     _orderBooks[order.Ticker][order.AskPrice].SharesToSell -= order.Amount;
             
             ReevaluatePricing(ref order);
 

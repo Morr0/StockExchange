@@ -76,7 +76,8 @@ namespace StockExchangeWeb.Services.ExchangeService
         private async Task<Dictionary<string, Order>> PlaceOrderAndTryExecute(Order order)
         {
             string key = CacheKeyGenerator.ToStoreKey(ref order);
-
+            order.DeletionReferenceKey = key;
+            
             await _orderCacheService.Cache(key, order);
 
             return await TryExecute(order);
@@ -142,16 +143,18 @@ namespace StockExchangeWeb.Services.ExchangeService
 
         #region Remove Order
 
-        public async Task<Order> RemoveOrder(string orderId)
+        public async Task<Order> RemoveOrder(string orderDeletionKey)
         {
-            Order order = await _orderCacheService.Get(orderId);
+            Order order = await _orderCacheService.First(orderDeletionKey);
             if (!VerifiedOrder(ref order))
                 return null;
+            
+            Console.WriteLine("Beyond point 1");
             
             // Remove order from cache
             await _orderCacheService.Decache(new Dictionary<string, Order>
             {
-                {orderId, order}
+                {orderDeletionKey, order}
             });
 
             OrderRemovalDueDiligence(ref order);
@@ -162,9 +165,9 @@ namespace StockExchangeWeb.Services.ExchangeService
         {
             if (order == null)
                 return false;
-            
-            // Verification checks
-            return !(order.OrderStatus == OrderStatus.Deleted || order.OrderStatus == OrderStatus.InMarket);
+            Console.WriteLine("Beyond point 0");
+
+            return order.OrderStatus != OrderStatus.Deleted && order.OrderStatus == OrderStatus.InMarket;
         }
         
         private void OrderRemovalDueDiligence(ref Order order)

@@ -8,6 +8,11 @@ namespace StockExchangeWeb.Models.Orders
     {
         [Key]
         public string Id { get; set; } = Guid.NewGuid().ToString();
+        
+        /// <summary>
+        /// For use for deletion of open order
+        /// </summary>
+        public string DeletionReferenceKey { get; set; }
 
         public bool LimitOrder { get; set; } = true;
 

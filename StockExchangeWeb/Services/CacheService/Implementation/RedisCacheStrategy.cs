@@ -9,12 +9,10 @@ namespace StockExchangeWeb.Services.CacheService.Implementation
 {
     public class RedisCacheStrategy : CacheStrategy
     {
-        private IEasyCachingProviderFactory _cachingProviderFactory;
         private IEasyCachingProvider _cachingProvider;
 
         public RedisCacheStrategy(IEasyCachingProviderFactory cachingProviderFactory)
         {
-            _cachingProviderFactory = cachingProviderFactory;
             _cachingProvider = cachingProviderFactory.GetCachingProvider("redis1");
         }
         
@@ -23,19 +21,15 @@ namespace StockExchangeWeb.Services.CacheService.Implementation
             await _cachingProvider.SetAsync<Order>(key, value, TimeSpan.FromDays(1));
         }
 
-        public override async Task<Order> Get(string key, bool firstPrefix = false)
+        public override async Task<Order> Get(string key)
         {
-            if (firstPrefix)
-            {
-                // LIMIT TO ONE
-                var cached = await _cachingProvider.GetByPrefixAsync<Order>(key);
-                if (cached.Count == 0)
-                    return null;
-                else
-                    return cached.Values.First().Value;
-            }
-            else
-                return (await _cachingProvider.GetAsync<Order>(key)).Value;
+            // LIMIT TO ONE
+            var cached = await _cachingProvider.GetByPrefixAsync<Order>(key);
+            Console.WriteLine("point -2");
+            if (cached.Count == 0)
+                return null;
+            Console.WriteLine("point -1");
+            return cached.Values.First().Value;
         }
 
         public override async Task<bool> RemoveMany(IEnumerable<string> ordersInvolved)

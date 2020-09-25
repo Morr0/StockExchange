@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using StockExchangeWeb.Models.Orders;
 using StockExchangeWeb.Models.OrderTrace;
@@ -8,11 +9,16 @@ namespace StockExchangeWeb.Services.OrderTracingService
 {
     public class OrderTraceRepository
     {
-        internal LinkedList<OrderTrace> _orderTraces = new LinkedList<OrderTrace>();
+        internal readonly LinkedList<OrderTrace> _orderTraces;
+
+        public OrderTraceRepository()
+        {
+            _orderTraces = new LinkedList<OrderTrace>();
+        }
         
         public void Trace(Order order)
         {
-            _orderTraces.AddLast(new OrderTrace
+            _orderTraces?.AddLast(new OrderTrace
             {
                 OrderId = order.Id,
                 OrderStatus = order.OrderStatus

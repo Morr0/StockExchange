@@ -19,19 +19,6 @@ namespace StockExchangeWeb.Services.CacheService
             await _strategy.Set(key, order);
         }
 
-        public async Task<Order> Get(string key)
-        {
-            return await _strategy.Get(key);
-        }
-
-        public async Task<bool> Decache(string key)
-        {
-            return await _strategy.RemoveMany(new[]
-            {
-                key
-            });
-        }
-
         public async Task Decache(Dictionary<string, Order> ordersInvolved)
         {
             await RemoveFromCache(ordersInvolved.Keys);
@@ -39,7 +26,7 @@ namespace StockExchangeWeb.Services.CacheService
 
         public async Task<Order> First(string cacheKey)
         {
-            return await _strategy.Get(cacheKey, true);
+            return await _strategy.Get(cacheKey);
         }
 
         private async Task<bool> RemoveFromCache(IEnumerable<string> ordersInvolved)
