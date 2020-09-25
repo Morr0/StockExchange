@@ -10,6 +10,9 @@ namespace StockExchangeWeb.Services.ExchangeService
     // Responsible for placing/removing/fetching orders
     public class OrderManager
     {
+        // INSTRUCTIONS:
+        // - ALL DATA TO BE STORED IN CACHE USING A KEY GENERATED USING CacheKeyGenerator.cs
+        
         private IOrderCacheService _orderCacheService;
 
         // TODO refactor verification from execution
@@ -99,14 +102,14 @@ namespace StockExchangeWeb.Services.ExchangeService
 
         private async Task<Dictionary<string, Order>> Execute(Order order, Order oppositeOrder)
         {
-            Dictionary<string, Order> ordersInvolved = new Dictionary<string, Order>
-            {
-                {order.Id, order},
-                {oppositeOrder.Id, oppositeOrder}
-            };
-            
             string orderKey = CacheKeyGenerator.ToStoreKey(ref order);
             string oppositeOrderKey = CacheKeyGenerator.ToStoreKey(ref oppositeOrder);
+            
+            Dictionary<string, Order> ordersInvolved = new Dictionary<string, Order>
+            {
+                {orderKey, order},
+                {oppositeOrderKey, oppositeOrder}
+            };
 
             await _orderCacheService.Decache(ordersInvolved);
 

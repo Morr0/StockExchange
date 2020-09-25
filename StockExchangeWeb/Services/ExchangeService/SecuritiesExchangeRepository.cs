@@ -57,32 +57,15 @@ namespace StockExchangeWeb.Services.ExchangeService
         
         public async Task<Order> PlaceOrder(Order order)
         {
-            string tkr = order.Ticker;
-            decimal askPrice = order.AskPrice;
-
-            // Distribute order placement
-            await _orderCacheService.Cache(order.Id, order);
-            
-            // Trace
             _traceRepository.Trace(order);
 
-            bool marketOpen = _marketTimes.IsMarketOpen(tkr);
-
-            Dictionary<string, Order> ordersInvolved = await _orderManager.PutOrder(marketOpen, order);
-
+            bool marketOpen = _marketTimes.IsMarketOpen(order.Ticker);
+            var ordersInvolved = await _orderManager.PutOrder(marketOpen, order);
             ReevaluatePricing(ref order);
             
             await _ordersHistory.ArchiveOrder(ordersInvolved);
-            // Trade happened
             if (ordersInvolved.Count > 1)
-            {
-                // Trace
                 _traceRepository.Trace(ordersInvolved);
-                
-                // Distribute
-                await _orderCacheService.Decache(ordersInvolved);
-            }
-                
 
             return order;
         }
