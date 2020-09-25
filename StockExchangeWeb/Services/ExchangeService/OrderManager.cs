@@ -12,10 +12,23 @@ namespace StockExchangeWeb.Services.ExchangeService
     {
         private IOrderCacheService _orderCacheService;
 
+        // TODO refactor verification from execution
+        
         public OrderManager(IOrderCacheService orderCacheService)
         {
             _orderCacheService = orderCacheService;
         }
+
+        #region Commons
+
+        private async Task<Order> GetOrderByKey(string key)
+        {
+            return await _orderCacheService.First(key);
+        }
+
+        #endregion
+
+        #region Put order
 
         public async Task<Dictionary<string, Order>> PutOrder(bool marketOpen, Order order)
         {
@@ -72,7 +85,7 @@ namespace StockExchangeWeb.Services.ExchangeService
             bool oppositeSide = !order.BuyOrder;
             string cacheKey = CacheKeyGenerator.ToLookKey(ref oppositeSide, order.AskPrice, order.Amount);
 
-            Order oppositeOrder = await GetOppositeOrder(cacheKey);
+            Order oppositeOrder = await GetOrderByKey(cacheKey);
             if (oppositeOrder == null)
                 return new Dictionary<string, Order>
                 {
@@ -84,11 +97,6 @@ namespace StockExchangeWeb.Services.ExchangeService
             return ordersInvolved;
         }
 
-        private async Task<Order> GetOppositeOrder(string cacheKey)
-        {
-            return await _orderCacheService.First(cacheKey);
-        }
-        
         private async Task<Dictionary<string, Order>> Execute(Order order, Order oppositeOrder)
         {
             Dictionary<string, Order> ordersInvolved = new Dictionary<string, Order>
@@ -126,5 +134,42 @@ namespace StockExchangeWeb.Services.ExchangeService
                 order.ExecutedPrice = price;
             }
         }
+        
+        #endregion
+
+        #region Remove Order
+
+        public async Task<Order> RemoveOrder(string orderId)
+        {
+            Order order = await _orderCacheService.Get(orderId);
+            if (!VerifiedOrder(ref order))
+                return null;
+            
+            // Remove order from cache
+            await _orderCacheService.Decache(new Dictionary<string, Order>
+            {
+                {orderId, order}
+            });
+
+            OrderRemovalDueDiligence(ref order);
+            return order;
+        }
+        
+        private bool VerifiedOrder(ref Order order)
+        {
+            if (order == null)
+                return false;
+            
+            // Verification checks
+            return !(order.OrderStatus == OrderStatus.Deleted || order.OrderStatus == OrderStatus.InMarket);
+        }
+        
+        private void OrderRemovalDueDiligence(ref Order order)
+        {
+            order.OrderStatus = OrderStatus.Deleted;
+            order.OrderDeletionTime = DateTime.UtcNow.ToString();
+        }
+
+        #endregion
     }
 }

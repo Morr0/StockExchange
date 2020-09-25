@@ -109,21 +109,7 @@ namespace StockExchangeWeb.Services.ExchangeService
 
         public async Task<Order> RemoveOrder(string orderId)
         {
-            Order order = await _orderCacheService.Get(orderId);
-            if (order == null)
-                return null;
-            else
-                await _orderCacheService.Decache(orderId);
-
-            // Verification checks
-            if (order.OrderStatus == OrderStatus.Deleted)
-                return null;
-            if (order.OrderStatus != OrderStatus.InMarket)
-                return order;
-
-            // Actual delete
-            order.OrderStatus = OrderStatus.Deleted;
-            order.OrderDeletionTime = DateTime.UtcNow.ToString();
+            Order order = await _orderManager.RemoveOrder(orderId);
 
             await _ordersHistory.ArchiveOrder(new Dictionary<string, Order>
             {
