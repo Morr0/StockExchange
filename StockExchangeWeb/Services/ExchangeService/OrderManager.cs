@@ -114,7 +114,8 @@ namespace StockExchangeWeb.Services.ExchangeService
             return order.AskPrice;
         }
 
-        private void OrderExecutionDueDiligence(decimal price, Dictionary<string, Order> ordersInvolved)
+        // Takes care of bookkeeping
+        private static void OrderExecutionDueDiligence(decimal price, Dictionary<string, Order> ordersInvolved)
         {
             foreach (var orderPair in ordersInvolved)
             {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using EasyCaching.Core;
 using StockExchangeWeb.Models.Orders;
@@ -22,10 +23,19 @@ namespace StockExchangeWeb.Services.CacheService.Implementation
             await _cachingProvider.SetAsync<Order>(key, value, TimeSpan.FromDays(1));
         }
 
-        public override async Task<Order> Get(string key)
+        public override async Task<Order> Get(string key, bool firstPrefix = false)
         {
-            CacheValue<Order> val = await _cachingProvider.GetAsync<Order>(key);
-            return val.Value;
+            if (firstPrefix)
+            {
+                // LIMIT TO ONE
+                var cached = await _cachingProvider.GetByPrefixAsync<Order>(key);
+                if (cached.Count == 0)
+                    return null;
+                else
+                    return cached.Values.First().Value;
+            }
+            else
+                return (await _cachingProvider.GetAsync<Order>(key)).Value;
         }
 
         public override async Task<bool> RemoveMany(IEnumerable<string> ordersInvolved)

@@ -37,6 +37,11 @@ namespace StockExchangeWeb.Services.CacheService
             await RemoveFromCache(ordersInvolved.Keys);
         }
 
+        public async Task<Order> First(string cacheKey)
+        {
+            return await _strategy.Get(cacheKey, true);
+        }
+
         private async Task<bool> RemoveFromCache(IEnumerable<string> ordersInvolved)
         {
             return await _strategy.RemoveMany(ordersInvolved);
